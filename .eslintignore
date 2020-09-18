@@ -1,0 +1,3 @@
+src/generated/*
+src/tests/generated/*
+src/tests/protobuf/*

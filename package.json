@@ -1,0 +1,93 @@
+{
+  "name": "grpc-web-rx",
+  "version": "0.1.0",
+  "homepage": "https://wisetime.com",
+  "main": "src/index.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "grpc-web": "^1.2.1",
+    "rxjs": "^6.6.3",
+    "typescript": "^3.9.7"
+  },
+  "devDependencies": {
+    "@types/faker": "^4.1.11",
+    "@types/jest": "^24.9.1",
+    "@typescript-eslint/eslint-plugin": "^2.34.0",
+    "@typescript-eslint/parser": "^2.34.0",
+    "eslint": "^6.8.0",
+    "factory.ts": "^0.5.1",
+    "faker": "^4.1.0",
+    "jest": "24.9.0",
+    "rxjs-marbles": "^6.0.0",
+    "ts-jest": "^26.2.0"
+  },
+  "scripts": {
+    "pretest": "cd src/tests; make protobuf",
+    "test": "jest --no-cache",
+    "build": "tsc --module commonjs",
+    "eslint": "eslint  --quiet src/*"
+  },
+  "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+      "plugin:@typescript-eslint/recommended"
+    ],
+    "rules": {
+      "indent": [
+        "error",
+        2,
+        {
+          "SwitchCase": 1,
+          "FunctionDeclaration": {
+            "parameters": "first"
+          }
+        }
+      ],
+      "semi": [
+        "error",
+        "never"
+      ],
+      "quotes": [
+        "error",
+        "double"
+      ],
+      "prefer-destructuring": 1,
+      "react/display-name": 0,
+      "@typescript-eslint/member-delimiter-style": [
+        "error",
+        {
+          "multiline": {
+            "delimiter": "comma",
+            "requireLast": true
+          },
+          "singleline": {
+            "delimiter": "comma",
+            "requireLast": false
+          }
+        }
+      ],
+      "object-curly-spacing": [
+        "error",
+        "always",
+        {
+          "arraysInObjects": false,
+          "objectsInObjects": false
+        }
+      ]
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ]
+  }
+}
