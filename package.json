@@ -12,22 +12,31 @@
     "typescript": "^3.9.7"
   },
   "devDependencies": {
-    "@types/faker": "^4.1.11",
-    "@types/jest": "^24.9.1",
-    "@typescript-eslint/eslint-plugin": "^2.34.0",
-    "@typescript-eslint/parser": "^2.34.0",
-    "eslint": "^6.8.0",
+    "@grpc/grpc-js": "^1.1.7",
+    "@types/faker": "^5.1.0",
+    "@types/jest": "^26.0.14",
+    "@typescript-eslint/eslint-plugin": "^4.2.0",
+    "@typescript-eslint/parser": "^4.2.0",
+    "eslint": "^7.9.0",
     "factory.ts": "^0.5.1",
-    "faker": "^4.1.0",
-    "jest": "24.9.0",
-    "rxjs-marbles": "^6.0.0",
-    "ts-jest": "^26.2.0"
+    "faker": "^5.1.0",
+    "forever": "^3.0.2",
+    "grpc-tools": "^1.9.1",
+    "grpc_tools_node_protoc_ts": "^4.1.5",
+    "jest": "26.4.0",
+    "jsdom": "^16.4.0",
+    "rxjs-marbles": "^6.0.1",
+    "ts-node": "^9.0.0",
+    "ts-jest": "^26.4.0",
+    "xhr2": "^0.2.0"
   },
   "scripts": {
-    "pretest": "cd src/tests; make protobuf",
+    "pretest": "make test-generate-proto",
     "test": "jest --no-cache",
-    "build": "tsc --module commonjs",
-    "eslint": "eslint  --quiet src/*"
+    "build": "make test-generate-proto && tsc",
+    "eslint": "eslint --quiet src/*",
+    "start-server": "forever start -v -c ts-node src/test/integration/server.ts",
+    "stop-server": "forever stopall"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",

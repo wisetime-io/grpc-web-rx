@@ -5,6 +5,8 @@
 
 syntax = "proto3";
 
+package grpcwebrx.testing;
+
 service UnaryScenarios {
   rpc Ok (EchoRequest) returns (EchoResponse);
   rpc FailedPrecondition (EchoRequest) returns (Empty);
