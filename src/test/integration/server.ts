@@ -8,21 +8,21 @@ import { Status } from "@grpc/grpc-js/build/src/constants"
 
 class UnaryScenariosServerImpl implements IUnaryScenariosServer {
 
-    ok = (call: grpc.ServerUnaryCall<EchoRequest, EchoResponse>, callback: grpc.sendUnaryData<EchoResponse>): void => {
-      console.log(`ok() called with payload: ${call.request?.getMessage()}`)
-      callback(null, new EchoResponse().setMessage(call.request?.getMessage() + "-server"))
-    }
+  ok = (call: grpc.ServerUnaryCall<EchoRequest, EchoResponse>, callback: grpc.sendUnaryData<EchoResponse>): void => {
+    console.log(`ok() called with payload: ${call.request?.getMessage()}`)
+    callback(null, new EchoResponse().setMessage(call.request?.getMessage() + "-server"))
+  }
 
-    failedPrecondition = (call: grpc.ServerUnaryCall<EchoRequest, EchoResponse>, callback: grpc.sendUnaryData<Empty>): void => {
-      console.log(`failedPrecondition() called with payload: ${call.request?.getMessage()}`)
-      const error = { code: Status.FAILED_PRECONDITION, message: "Invalid request" }
-      callback(error, new Empty())
-    }
+  failedPrecondition = (call: grpc.ServerUnaryCall<EchoRequest, EchoResponse>, callback: grpc.sendUnaryData<Empty>): void => {
+    console.log(`failedPrecondition() called with payload: ${call.request?.getMessage()}`)
+    const error = { code: Status.FAILED_PRECONDITION, message: "Invalid request" }
+    callback(error, new Empty())
+  }
 
-    noResponse = (call: grpc.ServerUnaryCall<EchoRequest, EchoResponse>, callback: grpc.sendUnaryData<Empty>): void => {
-      console.log(`noResponse() called with payload: ${call.request?.getMessage()}`)
-      callback(null, new Empty())
-    }
+  noResponse = (call: grpc.ServerUnaryCall<EchoRequest, EchoResponse>, callback: grpc.sendUnaryData<Empty>): void => {
+    console.log(`noResponse() called with payload: ${call.request?.getMessage()}`)
+    callback(null, new Empty())
+  }
 }
 
 const startServer = (): void => {
@@ -35,7 +35,7 @@ const startServer = (): void => {
     if (err) {
       throw err
     }
-    console.log(`Starting server, listening on: 127.0.0.1:${port}`)
+    console.log(`Starting gRPC server, listening on: 127.0.0.1:${port}`)
     server.start()
   })
 }

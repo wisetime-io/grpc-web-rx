@@ -19,7 +19,6 @@ describe("UnaryScenarios service", () => {
   it("appends '-server' to request message on unary ok()", (done) => {
     const request = new EchoRequest().setMessage("echo")
     unaryScenariosClient.ok(request, {}, (err: grpcWeb.Error, response: EchoResponse) => {
-      console.log(response.getMessage())
       expect(response.getMessage()).toBe(request.getMessage() + "-server")
       done()
     })

@@ -32,7 +32,7 @@
   },
   "scripts": {
     "pretest": "make test-generate-proto",
-    "test": "jest --no-cache",
+    "test": "make start-local-proxy && npm run start-server && sleep 2 && jest --no-cache && npm run stop-server",
     "build": "make test-generate-proto && tsc",
     "eslint": "eslint --quiet src/*",
     "start-server": "forever start -v -c ts-node src/test/integration/server.ts",

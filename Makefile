@@ -1,14 +1,8 @@
 # Copyright (c) 2020 WiseTime. All rights reserved.
 
-integration:
-	@echo "- Start local envoy proxy"
-	sh scripts/start-envoy-local.sh
-	@echo "- Start node server"
-	npm run start-server
-	@echo "- Run tests against server"
-	sleep 2 && npm test
-	@echo "- Stop node server"
-	npm run stop-server
+integration-test:
+	@echo "- Run tests against local node server"
+	npm test
 
 test-generate-proto:
 	@echo "- Clean proto-generated code"
@@ -17,6 +11,10 @@ test-generate-proto:
 	sh scripts/build-client-proto.sh
 	@echo "- Generate Node TypeScript stubs from test_scenarios.proto"
 	sh scripts/build-server-proto.sh
+
+start-local-proxy:
+	@echo "- Start local envoy proxy"
+	sh scripts/start-envoy-local.sh
 
 init:
 	npm ci

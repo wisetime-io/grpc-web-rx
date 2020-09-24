@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# envoy proxy container is already configured in ci
+if [ "$DRONE" == true ]; then
+  echo "running in Drone, skipping local envoy proxy setup..."
+  exit 0
+fi
+
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 cd ${BASEDIR}/../
 
