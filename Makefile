@@ -1,15 +1,20 @@
 # Copyright (c) 2020 WiseTime. All rights reserved.
 
-test: clean test-generate-proto
-	@echo "TODO:"
-	@echo "- Start Node server"
-	@echo "- Run test scenarios"
+integration-test:
+	@echo "- Run tests against local node server"
+	npm test
 
 test-generate-proto:
-	@echo "TODO"
 	@echo "- Clean proto-generated code"
+	rm -rf src/generated
 	@echo "- Generate gRPC Web TypeScript client from test_scenarios.proto"
+	sh scripts/build-client-proto.sh
 	@echo "- Generate Node TypeScript stubs from test_scenarios.proto"
+	sh scripts/build-server-proto.sh
+
+start-local-proxy:
+	@echo "- Start local envoy proxy"
+	sh scripts/start-envoy-local.sh
 
 init:
 	npm ci
