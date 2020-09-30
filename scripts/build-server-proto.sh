@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 cd ${BASEDIR}/../
@@ -6,7 +6,7 @@ cd ${BASEDIR}/../
 PROTO_DIR=src/test/proto
 OUTPUT_DIR=src/generated/server
 
-[ ! -d "$OUTPUT_DIR" ] && mkdir -p "$OUTPUT_DIR"
+[[ ! -d "$OUTPUT_DIR" ]] && mkdir -p "$OUTPUT_DIR"
 
 ./node_modules/.bin/grpc_tools_node_protoc \
   --js_out=import_style=commonjs,binary:"$OUTPUT_DIR" \

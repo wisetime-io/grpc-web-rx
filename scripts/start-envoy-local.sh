@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 # envoy proxy container is already configured in ci
-if [ "$DRONE" == true ]; then
+if [[ "$DRONE" == true ]]; then
   echo "running in Drone, skipping local envoy proxy setup..."
   exit 0
 fi

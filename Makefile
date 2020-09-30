@@ -8,13 +8,13 @@ test-generate-proto:
 	@echo "- Clean proto-generated code"
 	rm -rf src/generated
 	@echo "- Generate gRPC Web TypeScript client from test_scenarios.proto"
-	sh scripts/build-client-proto.sh
+	./scripts/build-client-proto.sh
 	@echo "- Generate Node TypeScript stubs from test_scenarios.proto"
-	sh scripts/build-server-proto.sh
+	./scripts/build-server-proto.sh
 
 start-local-proxy:
 	@echo "- Start local envoy proxy"
-	sh scripts/start-envoy-local.sh
+	./scripts/start-envoy-local.sh
 
 init:
 	npm ci
