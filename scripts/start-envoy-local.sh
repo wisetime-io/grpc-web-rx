@@ -9,7 +9,7 @@ fi
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 cd ${BASEDIR}/../
 
-ENVOY_CONFIG=src/test/integration/envoy.yaml
+ENVOY_CONFIG=src/test/integration/envoy/envoy.yaml
 
 # attempt to stop existing envoy-local container (if exists)
 docker rm -f envoy-local
