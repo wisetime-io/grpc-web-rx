@@ -4,7 +4,7 @@ import { EchoRequest, Empty } from "../../../generated/client/test_scenarios_pb"
 import { UnaryScenariosClient } from "../../../generated/client/Test_scenariosServiceClientPb"
 import { setupIntegrationTests, testNoOp } from "./testUtil"
 import { StatusCode } from "grpc-web"
-import { from } from "rxjs"
+import { fromGrpc } from "../../../index"
 
 setupIntegrationTests()
 
@@ -13,7 +13,7 @@ describe("unary rpc scenarios", () => {
   const unaryScenariosClient = new UnaryScenariosClient("http://localhost:8080")
 
   it("should append '-server' to request message on unary ok()", (done) => {
-    from(unaryScenariosClient.ok(request, {}))
+    fromGrpc(() => unaryScenariosClient.ok(request, {}))
       .subscribe(resp => {
         expect(resp.getMessage()).toBe(request.getMessage() + "-server")
         done()
@@ -22,7 +22,7 @@ describe("unary rpc scenarios", () => {
   })
 
   it("should return grpc error on unary failedPrecondition()", (done) => {
-    from(unaryScenariosClient.failedPrecondition(request, {}))
+    fromGrpc(() => unaryScenariosClient.failedPrecondition(request, {}))
       .subscribe(_next => testNoOp(),
         error => {
           expect(error.code).toEqual(StatusCode.FAILED_PRECONDITION)
@@ -31,7 +31,7 @@ describe("unary rpc scenarios", () => {
   })
 
   it("should return 'empty' on unary noResponse()", (done) => {
-    from(unaryScenariosClient.noResponse(request, {}))
+    fromGrpc(() => unaryScenariosClient.noResponse(request, {}))
       .subscribe(next => {
         expect(next).toEqual(new Empty())
         done()

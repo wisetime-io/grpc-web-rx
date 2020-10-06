@@ -2,8 +2,9 @@
 
 import * as grpc from "@grpc/grpc-js"
 import * as scenariosPb from "../../../generated/server/test_scenarios_grpc_pb"
-import { UnaryScenarios } from "./unaryStreamingScenarios"
+import { UnaryScenarios } from "./unaryScenarios"
 import { ServerStreamingScenarios } from "./serverStreamingScenarios"
+import { RetryScenarios } from "./retryScenarios"
 
 const startServer = (): void => {
   const server = new grpc.Server()
@@ -14,6 +15,9 @@ const startServer = (): void => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   server.addService(scenariosPb["grpcwebrx.testing.ServerStreamingScenarios"], new ServerStreamingScenarios())
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  server.addService(scenariosPb["grpcwebrx.testing.RetryScenarios"], new RetryScenarios())
 
   server.bindAsync("127.0.0.1:9090", grpc.ServerCredentials.createInsecure(), (err, port) => {
     if (err) {

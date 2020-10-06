@@ -17,8 +17,9 @@ export class ServerStreamingScenarios implements IServerStreamingScenariosServer
 
   failedPrecondition = (call: ServerWritableStream<EchoRequest, Empty>): void => {
     console.log(`server-streaming failedPrecondition() called with payload: ${call.request?.getMessage()}`)
-    call.emit("error", { code: Status.FAILED_PRECONDITION, message: "Invalid request" })
-    call.end()
+    for (let i = 1; i <= 5; i++) {
+      call.emit("error", { code: Status.FAILED_PRECONDITION, message: "Invalid request" })
+    }
   }
 
   noResponse = (call: ServerWritableStream<EchoRequest, Empty>): void => {
