@@ -19,6 +19,9 @@ start-local-proxy:
 init:
 	npm ci
 
+lint:
+	npm run eslint
+
 clean:
 	rm -rf dist/
 	rm -rf node_modules/

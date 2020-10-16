@@ -1,7 +1,7 @@
 // Copyright (c) 2020 WiseTime. All rights reserved.
 
 import { setupIntegrationTests, testNoOp } from "./testUtil"
-import { FailThenSucceedRequest } from "../../../generated/client/test_scenarios_pb"
+import { FailThenSucceedRequest, FailThenSucceedResponse } from "../../../generated/client/test_scenarios_pb"
 import { RetryScenariosClient } from "../../../generated/client/Test_scenariosServiceClientPb"
 import { fromGrpc, RetryPolicyGrpc, retryWithGrpc } from "../../../index"
 import * as grpcWeb from "grpc-web"
@@ -11,7 +11,7 @@ setupIntegrationTests()
 
 describe("retry scenarios impl", () => {
   const retryClient = new RetryScenariosClient("http://localhost:8080")
-  const timeout = 10000
+  const timeout = 10_000
 
   it("should retry until success", (done) => {
     const numFailuresUntilSuccess = 2
@@ -35,6 +35,31 @@ describe("retry scenarios impl", () => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         error: _err => testNoOp(),
         complete: () => testNoOp()
+      })
+  }, timeout)
+
+  it("should retry streaming rpc until success and complete", (done) => {
+    const numFailuresUntilSuccess = 2
+    const request = generateRetryRequest(numFailuresUntilSuccess)
+    const retryPolicy = {
+      shouldRetry: (error: grpcWeb.Error) => error.code == grpcWeb.StatusCode.PERMISSION_DENIED,
+      maxRetries: 2,
+      beforeRetry: () => {
+        return Promise.resolve()
+      },
+      intervalMs: 500
+    }
+
+    fromGrpc<FailThenSucceedResponse>(() => retryClient.failThenSucceedStream(request, {}))
+      .pipe(retryWithGrpc(retryPolicy))
+      .subscribe({
+        next: value => {
+          expect(value.getNumFailures()).toEqual(numFailuresUntilSuccess)
+          done()
+        },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        error: _err => console.log(_err),
+        complete: () => done()
       })
   }, timeout)
 
@@ -80,10 +105,8 @@ describe("retry scenarios impl", () => {
       .subscribe({
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         next: _value => testNoOp(),
-        error: err => {
-          console.log(err)
-          done()
-        },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        error: _err => done(),
         complete: () => testNoOp()
       })
   }

@@ -21,6 +21,7 @@ service ServerStreamingScenarios {
 
 service RetryScenarios {
   rpc FailThenSucceed (FailThenSucceedRequest) returns (FailThenSucceedResponse);
+  rpc FailThenSucceedStream (FailThenSucceedRequest) returns (stream FailThenSucceedResponse);
   rpc AuthenticatedRpc (EchoRequest) returns (EchoResponse);
 }
 

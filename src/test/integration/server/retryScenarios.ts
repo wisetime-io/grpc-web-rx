@@ -1,14 +1,14 @@
 // Copyright (c) 2020 WiseTime. All rights reserved.
 
 import { IRetryScenariosServer } from "../../../generated/server/test_scenarios_grpc_pb"
-import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js"
+import { sendUnaryData, ServerUnaryCall, ServerWritableStream } from "@grpc/grpc-js"
 import {
   EchoRequest,
   EchoResponse,
   FailThenSucceedRequest,
   FailThenSucceedResponse
 } from "../../../generated/server/test_scenarios_pb"
-import { StatusCode } from "grpc-web"
+import { Status } from "@grpc/grpc-js/build/src/constants"
 
 export class RetryScenarios implements IRetryScenariosServer {
 
@@ -25,13 +25,29 @@ export class RetryScenarios implements IRetryScenariosServer {
     const current = this.failuresMap.get(key) || 1
     this.failuresMap.set(key, current + 1)
 
-    console.log(`request: ${key} with attempt #${current}`)
-
     if (current > numFailures) {
       callback(null, new FailThenSucceedResponse().setNumFailures(numFailures))
     } else {
-      const error = { code: StatusCode.PERMISSION_DENIED, message: "Unauthorized" }
+      const error = { code: Status.PERMISSION_DENIED, message: "Unauthorized" }
       callback(error, null)
+    }
+  }
+
+  failThenSucceedStream(call: ServerWritableStream<FailThenSucceedRequest, FailThenSucceedResponse>): void {
+    const key = call.request?.getKey() || "key"
+    const numFailures = call.request?.getNumFailures() || 1
+
+    const current = this.failuresMap.get(key) || 1
+    this.failuresMap.set(key, current + 1)
+
+    if (current > numFailures) {
+      for (let i = 0; i <= numFailures; i++) {
+        call.write(new FailThenSucceedResponse().setNumFailures(numFailures))
+      }
+      call.end()
+    } else {
+      const error = { code: Status.PERMISSION_DENIED, message: "Unauthorized" }
+      call.emit("error", error)
     }
   }
 }
