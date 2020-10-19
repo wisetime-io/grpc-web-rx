@@ -2,9 +2,9 @@
 
 import * as grpc from "@grpc/grpc-js"
 import * as scenariosPb from "../../../generated/server/test_scenarios_grpc_pb"
-import { UnaryScenarios } from "./unaryScenarios"
-import { ServerStreamingScenarios } from "./serverStreamingScenarios"
-import { RetryScenarios } from "./retryScenarios"
+import { UnaryScenarios } from "./UnaryScenarios"
+import { ServerStreamingScenarios } from "./ServerStreamingScenarios"
+import { RetryScenarios } from "./RetryScenarios"
 
 const startServer = (): void => {
   const server = new grpc.Server()

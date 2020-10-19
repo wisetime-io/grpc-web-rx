@@ -44,9 +44,7 @@ describe("retry scenarios impl", () => {
     const retryPolicy = {
       shouldRetry: (error: grpcWeb.Error) => error.code == grpcWeb.StatusCode.PERMISSION_DENIED,
       maxRetries: 2,
-      beforeRetry: () => {
-        return Promise.resolve()
-      },
+      beforeRetry: () => Promise.resolve(),
       intervalMs: 500
     }
 
@@ -69,9 +67,7 @@ describe("retry scenarios impl", () => {
     const retryPolicyExceedingMaxRetries = {
       shouldRetry: (error: grpcWeb.Error) => error.code == grpcWeb.StatusCode.PERMISSION_DENIED,
       maxRetries: numFailuresUntilSuccess - 1,
-      beforeRetry: () => {
-        return Promise.resolve()
-      },
+      beforeRetry: () => Promise.resolve(),
       intervalMs: 500
     }
 
@@ -84,9 +80,7 @@ describe("retry scenarios impl", () => {
     const retryPolicyWithRejectedPromise = {
       shouldRetry: (error: grpcWeb.Error) => error.code == grpcWeb.StatusCode.PERMISSION_DENIED,
       maxRetries: 2,
-      beforeRetry: () => {
-        return Promise.reject("error")
-      },
+      beforeRetry: () => Promise.reject("error"),
       intervalMs: 500
     }
 

@@ -101,7 +101,7 @@ export const retryWithGrpc = (retryPolicy: RetryPolicyGrpc) => <T>(source: Obser
  *
  * @param error - Generic error whose type is unknown
  */
-export const isGrpcWebError = (error: unknown): error is grpcWeb.Error => {
+const isGrpcWebError = (error: unknown): error is grpcWeb.Error => {
   if (!error) {
     return false
   }
