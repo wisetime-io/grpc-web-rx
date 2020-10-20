@@ -14,39 +14,36 @@ Run tests by executing the following command:
 
 `$ make test`
 
-This starts a local gRPC node server together with an Envoy proxy (via Docker) where the tests are run against.
+This starts a local gRPC node server together with an Envoy proxy (via Docker) where the tests will be run against.
 
 ## Usage
 
-The library provides a `fromGrpc` creation operator and a `retryWithGrpc` error handling operator for wrapping
-gRPC-web calls with a `rxjs.Observable` plus support for configurable retry policies.
+The library provides a `from` creation operator and a `retry` error handling operator for wrapping gRPC-web calls with a
+`rxjs.Observable` plus support for configurable retry policies via the provided `RetryPolicy` type.
 
-Retries are executed with exponential backoff based off of the interval (in milliseconds) from the provided
-retry policy.
+Retries are executed with exponential backoff based off of the interval (in milliseconds) from the provided retry policy.
 
 ```javascript
-const grpcClient = new FooClient("http://localhost:8080");
+const grpcClient = new FooClient("http://localhost:8081");
 
-// fromGrpc returns an Observable
-fromGrpc<FooResponse>(() => grpcClient.foo(new FooRequest(), {}))
+// from returns an Observable
+from<FooResponse>(() => grpcClient.foo(new FooRequest(), {}))
   .subscribe({
     next: data => console.log(data.getBar()),
     error: error => console.log(error),
     complete: () => console.log("complete")
   })
 
-// using retryWithGrpc with custom retry policy
+// using retry with custom retry policy
 const retryPolicy = {
-  shouldRetry: (error: grpcWeb.Error) => error.code == grpcWeb.StatusCode.PERMISSION_DENIED,
+  shouldRetry: (error: Grpc.Error) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
   maxRetries: 2,
-  beforeRetry: () => {
-    return Promise.resolve()
-  },
-  intervalMs: 500
+  beforeRetry: () => Promise.resolve(),
+  interval: 500
 }
 
-fromGrpc<FooResponse>(() => grpcClient.foo(new FooRequest(), {}))
-  .pipe(retryWithGrpc(retryPolicy))
+from<FooResponse>(() => grpcClient.foo(new FooRequest(), {}))
+  .pipe(retry(retryPolicy))
   .subscribe({
     next: data => console.log(data.getBar()),
     error: error => console.log(error),

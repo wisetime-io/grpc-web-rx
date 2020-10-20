@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "homepage": "https://wisetime.com",
   "main": "src/index.ts",
+  "license": "Apache-2.0",
   "files": [
     "dist"
   ],

@@ -14,11 +14,20 @@ export class RetryScenarios implements IRetryScenariosServer {
 
   failuresMap: Map<string, number> = new Map<string, number>()
 
-  authenticatedRpc(call: ServerUnaryCall<EchoRequest, EchoResponse>, callback: sendUnaryData<EchoResponse>): void {
+  getNumFailuresAndCurrent = (call: ServerUnaryCall<FailThenSucceedRequest, FailThenSucceedResponse>): { numFailures: number, current: number } => {
+    const key = call.request?.getKey() || "key"
+    const numFailures = call.request?.getNumFailures() || 1
+
+    const current = this.failuresMap.get(key) || 1
+    this.failuresMap.set(key, current + 1)
+    return { numFailures, current }
+  }
+
+  authenticatedRpc = (call: ServerUnaryCall<EchoRequest, EchoResponse>, callback: sendUnaryData<EchoResponse>): void => {
     callback(null, new EchoResponse())
   }
 
-  failThenSucceed(call: ServerUnaryCall<FailThenSucceedRequest, FailThenSucceedResponse>, callback: sendUnaryData<FailThenSucceedResponse>): void {
+  failThenSucceed = (call: ServerUnaryCall<FailThenSucceedRequest, FailThenSucceedResponse>, callback: sendUnaryData<FailThenSucceedResponse>): void => {
     const { numFailures, current } = this.getNumFailuresAndCurrent(call)
 
     if (current > numFailures) {
@@ -29,7 +38,7 @@ export class RetryScenarios implements IRetryScenariosServer {
     }
   }
 
-  failThenSucceedStream(call: ServerWritableStream<FailThenSucceedRequest, FailThenSucceedResponse>): void {
+  failThenSucceedStream = (call: ServerWritableStream<FailThenSucceedRequest, FailThenSucceedResponse>): void => {
     const { numFailures, current } = this.getNumFailuresAndCurrent(call)
 
     if (current > numFailures) {
@@ -41,14 +50,5 @@ export class RetryScenarios implements IRetryScenariosServer {
       const error = { code: Status.PERMISSION_DENIED, message: "Unauthorized" }
       call.emit("error", error)
     }
-  }
-
-  getNumFailuresAndCurrent(call: ServerUnaryCall<FailThenSucceedRequest, FailThenSucceedResponse>): { numFailures: number, current: number } {
-    const key = call.request?.getKey() || "key"
-    const numFailures = call.request?.getNumFailures() || 1
-
-    const current = this.failuresMap.get(key) || 1
-    this.failuresMap.set(key, current + 1)
-    return { numFailures, current }
   }
 }
