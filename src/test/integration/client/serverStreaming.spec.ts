@@ -11,7 +11,8 @@ setupIntegrationTests()
 
 describe("server streaming rpc scenarios", () => {
   const request = new EchoRequest().setMessage("echo")
-  const serverStreamingClient = new ServerStreamingScenariosClient("http://localhost:8081")
+  const host = process.env.ENVOY_HOST || "localhost"
+  const serverStreamingClient = new ServerStreamingScenariosClient(`http://${host}:8081`)
 
   it("should append '-streaming' to request message on streaming ok()", (done) => {
     from<EchoResponse>(() => serverStreamingClient.ok(request, {}))

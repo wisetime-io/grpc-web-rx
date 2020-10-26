@@ -1,0 +1,69 @@
+---
+kind: pipeline
+name: unit-test
+
+steps:
+  - name: build
+    image: node:10.16
+    commands:
+      - make clean
+      - make init
+      - make lint
+      - wget -O protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protoc-3.13.0-linux-x86_64.zip
+          && unzip -o protoc.zip -d /tmp
+          && rm -f protoc.zip
+          && mv /tmp/bin/protoc /usr/bin/protoc
+          && chmod +x /usr/bin/protoc
+      - wget -O protoc-gen-grpc-web https://github.com/grpc/grpc-web/releases/download/1.2.1/protoc-gen-grpc-web-1.2.1-linux-x86_64
+          && mv protoc-gen-grpc-web /usr/bin
+          && chmod +x /usr/bin/protoc-gen-grpc-web
+      - make build
+
+  - name: test
+    image: node:10.16
+    commands:
+      - ENVOY_HOST='envoyproxy' make integration-test
+    depends_on:
+      - build
+
+services:
+  - name: node-server
+    image: node:10.16
+    commands:
+      - ./node_modules/.bin/ts-node src/test/integration/server/server.ts
+    depends_on:
+      - build
+  - name: envoyproxy
+    image: envoyproxy/envoy:v1.15.0
+    commands:
+      - envoy --config-path src/test/integration/envoy/envoy.yaml
+
+trigger:
+  event:
+    - push
+
+---
+kind: secret
+name: git-ssh-key-b64
+get:
+  path: drone/stash/submodule-rsa
+  name: submod-key-b64
+
+
+---
+kind: secret
+name: bamboo-user
+get:
+  path: drone/bamboo/trigger
+  name: bamboo-user
+
+---
+kind: secret
+name: bamboo-pass
+get:
+  path: drone/bamboo/trigger
+  name: bamboo-pass
+
+# example local builds:
+#  - drone exec --trusted --include test --branch feature/WT-7371-configuration-as-code
+#  - drone exec --trusted --include trigger-bamboo-artifact-master-build --secret-file secrets.env --branch master

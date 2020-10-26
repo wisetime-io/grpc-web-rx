@@ -1,25 +1,25 @@
 // Copyright (c) 2020 WiseTime. All rights reserved.
 
 import * as grpc from "@grpc/grpc-js"
-import * as scenariosPb from "../../../generated/server/test_scenarios_grpc_pb"
 import { UnaryScenarios } from "./UnaryScenarios"
 import { ServerStreamingScenarios } from "./ServerStreamingScenarios"
 import { RetryScenarios } from "./RetryScenarios"
+import { UnaryScenariosService, ServerStreamingScenariosService, RetryScenariosService } from "../../../generated/server/test_scenarios_grpc_pb"
 
 const startServer = (): void => {
   const server = new grpc.Server()
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  server.addService(scenariosPb["grpcwebrx.testing.UnaryScenarios"], new UnaryScenarios())
+  server.addService(UnaryScenariosService, new UnaryScenarios())
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  server.addService(scenariosPb["grpcwebrx.testing.ServerStreamingScenarios"], new ServerStreamingScenarios())
+  server.addService(ServerStreamingScenariosService, new ServerStreamingScenarios())
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  server.addService(scenariosPb["grpcwebrx.testing.RetryScenarios"], new RetryScenarios())
+  server.addService(RetryScenariosService, new RetryScenarios())
 
-  server.bindAsync("127.0.0.1:9090", grpc.ServerCredentials.createInsecure(), (err, port) => {
+  server.bindAsync("0.0.0.0:9090", grpc.ServerCredentials.createInsecure(), (err, port) => {
     if (err) {
       throw err
     }

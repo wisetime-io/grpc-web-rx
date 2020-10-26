@@ -10,7 +10,8 @@ setupIntegrationTests()
 
 describe("unary rpc scenarios", () => {
   const request = new EchoRequest().setMessage("echo")
-  const unaryScenariosClient = new UnaryScenariosClient("http://localhost:8081")
+  const host = process.env.ENVOY_HOST || "localhost"
+  const unaryScenariosClient = new UnaryScenariosClient(`http://${host}:8081`)
 
   it("should append '-server' to request message on unary ok()", (done) => {
     from(() => unaryScenariosClient.ok(request, {}))
