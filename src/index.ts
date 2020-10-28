@@ -1,7 +1,8 @@
 // Copyright (c) 2020 WiseTime. All rights reserved.
 
 import { from } from "./client"
-import { never, responseNotOk, retryAfter, RetryPolicy, retry } from "./retry"
+import { RetryPolicy, retry, responseNotOk, never } from "./retry"
 
-export { from, retry, never, responseNotOk, retryAfter }
+// The grpc-web-rx public API.
 export type { RetryPolicy }
+export { from, retry, responseNotOk, never }

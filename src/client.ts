@@ -6,7 +6,6 @@ import { Observable, Subscriber } from "rxjs"
 type UnaryRpc<T> = () => Promise<T>
 type ServerStreamingRpc = () => Grpc.ClientReadableStream<unknown>
 
-
 const isServerStreaming =
   <T>(response: ReturnType<UnaryRpc<T>> | ReturnType<ServerStreamingRpc>): response is ReturnType<ServerStreamingRpc> =>
     "on" in response

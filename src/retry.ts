@@ -56,22 +56,15 @@ export const never: RetryPolicy = {
  * Configure a retry policy that will retry calls when the server returns a non-OK gRPC status.
  * Note that calls that fail for other reasons (e.g. network failure) will not be retried.
  */
-export const responseNotOk: RetryPolicy = {
-  shouldRetry: (error: Grpc.Error) => error && error.code != Grpc.StatusCode.OK,
-  maxRetries: 2,
-  beforeRetry: (_: number) => of(undefined),
-}
-
-/**
- * Configure a retry policy that will retry calls with exponential backoff.
- */
-export const retryAfter = (
-  initialDelay: number,
+export const responseNotOk = (
+  shouldRetry: (error: Grpc.Error) => boolean,
+  maxRetries = 2,
+  beforeRetry: (attempt: number) => Observable<void> = _ => of(undefined),
 ): RetryPolicy => ({
-  shouldRetry: (_: Grpc.Error) => true,
-  maxRetries: 2,
-  beforeRetry: (attempt: number) => addExponentialDelay<void>(initialDelay)(of(undefined))(attempt),
-} as const)
+  shouldRetry,
+  maxRetries,
+  beforeRetry,
+})
 
 const isGrpcError = (error: unknown): error is Grpc.Error => {
   if (!error) {
