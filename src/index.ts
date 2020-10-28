@@ -1,21 +1,6 @@
 // Copyright (c) 2020 WiseTime. All rights reserved.
 
-import { Observable } from "rxjs"
+import { fromGrpc as from, never, responseNotOk, retryAfter, RetryPolicy, retryWithGrpc as retry, } from "./client"
 
-// Make a gRPC call.
-// export const call = <Request, Response>(rpc: any) => (request: Request): Observable<Response> => {
-// TODO:
-// - Don't use any as rpc type
-// }
-
-// Make a unary RPC call.
-// const uCall = <Request, Response>(rpc: any) => (request: Request): Observable<Response> => {
-// TODO
-// - Don't use any as rpc type
-// }
-
-// Make a server streaming RPC call.
-// const ssCall = <Request, Response>(rpc: any) => (request: Request): Observable<Response> => {
-// TODO
-// - Don't use any as rpc type
-// }
+export { from, retry, never, responseNotOk, retryAfter }
+export type { RetryPolicy }

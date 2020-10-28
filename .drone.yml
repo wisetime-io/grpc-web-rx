@@ -1,0 +1,61 @@
+---
+kind: pipeline
+name: unit-test
+
+steps:
+  - name: build
+    image: registry.dev.wisetime.com/check-frontend-v2
+    commands:
+      - make clean
+      - make init
+      - make lint
+      - make build
+
+  - name: test
+    image: registry.dev.wisetime.com/check-frontend-v2
+    commands:
+      - ENVOY_HOST='envoyproxy' make integration-test
+    depends_on:
+      - build
+
+services:
+  - name: node-server
+    image: registry.dev.wisetime.com/check-frontend-v2
+    commands:
+      - ./node_modules/.bin/ts-node src/test/integration/server/server.ts
+    depends_on:
+      - build
+  - name: envoyproxy
+    image: envoyproxy/envoy:v1.15.0
+    commands:
+      - envoy --config-path src/test/integration/envoy/envoy.yaml
+
+trigger:
+  event:
+    - push
+
+---
+kind: secret
+name: git-ssh-key-b64
+get:
+  path: drone/stash/submodule-rsa
+  name: submod-key-b64
+
+
+---
+kind: secret
+name: bamboo-user
+get:
+  path: drone/bamboo/trigger
+  name: bamboo-user
+
+---
+kind: secret
+name: bamboo-pass
+get:
+  path: drone/bamboo/trigger
+  name: bamboo-pass
+
+# example local builds:
+#  - drone exec --trusted --include test --branch feature/WT-7371-configuration-as-code
+#  - drone exec --trusted --include trigger-bamboo-artifact-master-build --secret-file secrets.env --branch master
