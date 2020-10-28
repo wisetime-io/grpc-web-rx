@@ -4,23 +4,15 @@ name: unit-test
 
 steps:
   - name: build
-    image: node:10.16
+    image: registry.dev.wisetime.com/check-frontend-v2
     commands:
       - make clean
       - make init
       - make lint
-      - wget -O protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protoc-3.13.0-linux-x86_64.zip
-          && unzip -o protoc.zip -d /tmp
-          && rm -f protoc.zip
-          && mv /tmp/bin/protoc /usr/bin/protoc
-          && chmod +x /usr/bin/protoc
-      - wget -O protoc-gen-grpc-web https://github.com/grpc/grpc-web/releases/download/1.2.1/protoc-gen-grpc-web-1.2.1-linux-x86_64
-          && mv protoc-gen-grpc-web /usr/bin
-          && chmod +x /usr/bin/protoc-gen-grpc-web
       - make build
 
   - name: test
-    image: node:10.16
+    image: registry.dev.wisetime.com/check-frontend-v2
     commands:
       - ENVOY_HOST='envoyproxy' make integration-test
     depends_on:
@@ -28,7 +20,7 @@ steps:
 
 services:
   - name: node-server
-    image: node:10.16
+    image: registry.dev.wisetime.com/check-frontend-v2
     commands:
       - ./node_modules/.bin/ts-node src/test/integration/server/server.ts
     depends_on:
