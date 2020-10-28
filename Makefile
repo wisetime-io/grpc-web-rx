@@ -15,6 +15,9 @@ test-generate-proto:
 	@echo "- Generate Node TypeScript stubs from test_scenarios.proto"
 	./scripts/build-server-proto.sh
 
+start-local-proxy:
+	./scripts/start-envoy-local.sh
+
 build:
 	npm run build
 

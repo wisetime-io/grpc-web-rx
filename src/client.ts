@@ -25,12 +25,36 @@ export type RetryPolicy = {
 const defaultMaxRetries = 2
 
 /**
+ * Computation for retry backoff based off of backoff-rxjs lib.
+ *
+ * @see {@link https://github.com/alex-okrushko/backoff-rxjs/blob/2e98471e445d338662a218c6aa065e1dd9a18d6c/src/utils.ts#L7|backoff-rxjs}
+ */
+const exponentialBackoff = (attempt: number, interval: number, maxInterval: number) => {
+  const backoffInterval = Math.pow(2, attempt) * interval
+  return Math.min(backoffInterval, maxInterval)
+}
+
+/**
+ * Apply an exponential backoff retry policy / strategy to an Observable.
+ *
+ * @param initialDelay - Minimum interval between retries and is the basis of computation for further retries.
+ * @param maxDelay - Maximum interval in between retries, capped at 60 minutes by default.
+ */
+export const addExponentialDelay = <T>(initialDelay: number, maxDelay?: number) => (observable: Observable<T>) => (attempt: number): Observable<T> => {
+  return observable
+    .pipe(
+      delay(exponentialBackoff(attempt, initialDelay, maxDelay || 60_000)),
+      catchError(e => throwError(e))
+    )
+}
+
+/**
  * Convenience function for a retry policy that never retries calls.
  */
 export const never: RetryPolicy = {
   shouldRetry: (_: Grpc.Error) => false,
   maxRetries: 0,
-  beforeRetry: (_: number) => of(void 0),
+  beforeRetry: (_: number) => of(undefined),
 }
 
 /**
@@ -40,7 +64,7 @@ export const never: RetryPolicy = {
 export const responseNotOk: RetryPolicy = {
   shouldRetry: (error: Grpc.Error) => error && error.code != Grpc.StatusCode.OK,
   maxRetries: defaultMaxRetries,
-  beforeRetry: (_: number) => of(void 0),
+  beforeRetry: (_: number) => of(undefined),
 }
 
 /**
@@ -52,7 +76,7 @@ export const retryAfter = (
 ): RetryPolicy => ({
   shouldRetry: (_: Grpc.Error) => true,
   maxRetries: defaultMaxRetries,
-  beforeRetry: (attempt: number) => addExponentialDelay<void>(initialDelay)(of(void 0))(attempt),
+  beforeRetry: (attempt: number) => addExponentialDelay<void>(initialDelay)(of(undefined))(attempt),
 } as const)
 
 /**
@@ -74,16 +98,6 @@ const isGrpcError = (error: unknown): error is Grpc.Error => {
 
   const grpcWebError = error as Grpc.Error
   return "code" in grpcWebError && "message" in grpcWebError
-}
-
-/**
- * Computation for retry backoff based off of backoff-rxjs lib.
- *
- * @see {@link https://github.com/alex-okrushko/backoff-rxjs/blob/2e98471e445d338662a218c6aa065e1dd9a18d6c/src/utils.ts#L7|backoff-rxjs}
- */
-const exponentialBackoff = (attempt: number, interval: number, maxInterval: number) => {
-  const backoffInterval = Math.pow(2, attempt) * interval
-  return Math.min(backoffInterval, maxInterval)
 }
 
 const fromServerStreaming = <T>(call: Grpc.ClientReadableStream<unknown>, observer: Subscriber<T>): void => {
@@ -124,20 +138,6 @@ export const fromGrpc = <T>(rpc: UnaryRpc<T> | ServerStreamingRpc): Observable<T
       fromUnary(call, observer)
     }
   })
-
-/**
- * Apply an exponential backoff retry policy / strategy to an Observable.
- *
- * @param initialDelay - Minimum interval between retries and is the basis of computation for further retries.
- * @param maxDelay - Maximum interval in between retries, capped at 60 minutes by default.
- */
-export const addExponentialDelay = <T>(initialDelay: number, maxDelay?: number) => (observable: Observable<T>) => (attempt: number): Observable<T> => {
-  return observable
-    .pipe(
-      delay(exponentialBackoff(attempt, initialDelay, maxDelay || 60_000)),
-      catchError(e => throwError(e))
-    )
-}
 
 /**
  * Wrapper around rxjs {@link retryWhen} operator with custom retry policy support.

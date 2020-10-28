@@ -23,7 +23,7 @@ The library provides a `from` creation operator and a `retry` error handling ope
 
 Retries are executed with exponential backoff based off of the interval (in milliseconds) from the provided retry policy.
 
-```javascript
+```typescript
 const grpcClient = new FooClient("http://localhost:8081");
 
 // from returns an Observable
@@ -35,11 +35,13 @@ from<FooResponse>(() => grpcClient.foo(new FooRequest(), {}))
   })
 
 // using retry with custom retry policy
+// add exponential backoff to your beforeRetry callback by using the addExponentialDelay convenience function
+const withDelay = addExponentialDelay<void>(2000, 60_000)
+const beforeRetry = withDelay(of(undefined))
 const retryPolicy = {
   shouldRetry: (error: Grpc.Error) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
   maxRetries: 2,
-  beforeRetry: () => Promise.resolve(),
-  interval: 500
+  beforeRetry: (attempt: number) => of("something that resolves"),
 }
 
 from<FooResponse>(() => grpcClient.foo(new FooRequest(), {}))
@@ -49,6 +51,13 @@ from<FooResponse>(() => grpcClient.foo(new FooRequest(), {}))
     error: error => console.log(error),
     complete: () => console.log("complete")
   })
+
+// alternatively you can use the pre-configured retry policies
+.pipe(retry(never))
+
+.pipe(retry(responseNotOk)) // only retries if response status code != 200
+
+.pipe(retry(retryAfter(1000))) // retries requests with exponential backoff starting at 1 second
 ```
 
 ## Limitations
