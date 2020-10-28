@@ -22,11 +22,9 @@ export type RetryPolicy = {
   beforeRetry: (attempt: number) => Observable<void>,
 }
 
-const defaultMaxRetries = 2
-
 /**
- * Computation for retry backoff based off of backoff-rxjs lib.
- *
+ * Calculate delay value for exponential backoff strategy.
+ * Based on the backoff-rxjs lib.
  * @see {@link https://github.com/alex-okrushko/backoff-rxjs/blob/2e98471e445d338662a218c6aa065e1dd9a18d6c/src/utils.ts#L7|backoff-rxjs}
  */
 const exponentialBackoff = (attempt: number, interval: number, maxInterval: number) => {
@@ -35,21 +33,21 @@ const exponentialBackoff = (attempt: number, interval: number, maxInterval: numb
 }
 
 /**
- * Apply an exponential backoff retry policy / strategy to an Observable.
+ * Apply a delay to an Observable, that increases exponentially with the number of retry attempts.
  *
- * @param initialDelay - Minimum interval between retries and is the basis of computation for further retries.
- * @param maxDelay - Maximum interval in between retries, capped at 60 minutes by default.
+ * @param initialDelay - Initial delay that is applied on first retry.
+ * @param maxDelay - Maximum delay to apply. Defaults to 1 hour.
  */
-export const addExponentialDelay = <T>(initialDelay: number, maxDelay?: number) => (observable: Observable<T>) => (attempt: number): Observable<T> => {
-  return observable
-    .pipe(
-      delay(exponentialBackoff(attempt, initialDelay, maxDelay || 60_000)),
-      catchError(e => throwError(e))
-    )
-}
+export const addExponentialDelay =
+  <T>(initialDelay: number, maxDelay?: number) => (observable: Observable<T>) => (attempt: number): Observable<T> =>
+    observable
+      .pipe(
+        delay(exponentialBackoff(attempt, initialDelay, maxDelay || 60_000)),
+        catchError(e => throwError(e))
+      )
 
 /**
- * Convenience function for a retry policy that never retries calls.
+ * A retry policy that never retries calls.
  */
 export const never: RetryPolicy = {
   shouldRetry: (_: Grpc.Error) => false,
@@ -58,57 +56,48 @@ export const never: RetryPolicy = {
 }
 
 /**
- * Convenience function for a retry policy that will retry calls when the server returns a non-OK status code (!= 200).
+ * Configure a retry policy that will retry calls when the server returns a non-OK gRPC status.
  * Note that calls that fail for other reasons (e.g. network failure) will not be retried.
  */
 export const responseNotOk: RetryPolicy = {
   shouldRetry: (error: Grpc.Error) => error && error.code != Grpc.StatusCode.OK,
-  maxRetries: defaultMaxRetries,
+  maxRetries: 2,
   beforeRetry: (_: number) => of(undefined),
 }
 
 /**
- * Convenience function for a retry policy that will retry calls with an exponential delay based on a provided initial
- * delay.
+ * Configure a retry policy that will retry calls with exponential backoff.
  */
 export const retryAfter = (
   initialDelay: number,
 ): RetryPolicy => ({
   shouldRetry: (_: Grpc.Error) => true,
-  maxRetries: defaultMaxRetries,
+  maxRetries: 2,
   beforeRetry: (attempt: number) => addExponentialDelay<void>(initialDelay)(of(undefined))(attempt),
 } as const)
 
-/**
- * Custom type guard that determines whether 'response' comes from a server-streaming rpc.
- *
- * @param response - Return type of either unary or server-streaming call
- */
-const isServerStreaming = <T>(response: ReturnType<UnaryRpc<T>> | ReturnType<ServerStreamingRpc>): response is ReturnType<ServerStreamingRpc> => "on" in response
+const isServerStreaming =
+  <T>(response: ReturnType<UnaryRpc<T>> | ReturnType<ServerStreamingRpc>): response is ReturnType<ServerStreamingRpc> =>
+    "on" in response
 
-/**
- * Custom type guard that determines whether 'error' is a {@link Grpc.Error}.
- *
- * @param error - Generic error whose type is unknown
- */
 const isGrpcError = (error: unknown): error is Grpc.Error => {
   if (!error) {
     return false
   }
-
-  const grpcWebError = error as Grpc.Error
-  return "code" in grpcWebError && "message" in grpcWebError
+  const grpcError = error as Grpc.Error
+  return "code" in grpcError && "message" in grpcError
 }
 
 const fromServerStreaming = <T>(call: Grpc.ClientReadableStream<unknown>, observer: Subscriber<T>): void => {
-  call.on("data", data => {
-    return data !== undefined ? observer.next(data as T)
-      : observer.error(new Error("Response type must be defined"))
-  })
+  call.on("data", data =>
+    data !== undefined
+      ? observer.next(data as T)
+      : observer.error(new Error("Response payload is undefined"))
+  )
   call.on("error", error => observer.error(error))
   call.on("status", status => {
     if (status.code == Grpc.StatusCode.OK) {
-      return observer.complete()
+      observer.complete()
     }
   })
 }
@@ -122,16 +111,16 @@ const fromUnary = <T>(call: Promise<T>, observer: Subscriber<T>): Promise<void> 
     .catch((err: unknown) => observer.error(err))
 
 /**
- * Wraps a gRPC-web call and returns an {@link Observable}.
+ * Create an {@link Observable} from a gRPC call.
  *
- * Note: {@link gRPC-web|https://github.com/grpc/grpc-web} only supports unary and server-streaming clients for now.
+ * Currently only supports unary and server streaming RPCs because {@link gRPC-web|https://github.com/grpc/grpc-web}
+ * only supports those for now.
  *
  * @param rpc - gRPC-web call which can either be unary or server-streaming
  */
-export const fromGrpc = <T>(rpc: UnaryRpc<T> | ServerStreamingRpc): Observable<T> =>
+export const from = <T>(rpc: UnaryRpc<T> | ServerStreamingRpc): Observable<T> =>
   new Observable<T>(observer => {
     const call = rpc()
-
     if (isServerStreaming<T>(call)) {
       fromServerStreaming(call, observer)
     } else {
@@ -140,16 +129,17 @@ export const fromGrpc = <T>(rpc: UnaryRpc<T> | ServerStreamingRpc): Observable<T
   })
 
 /**
- * Wrapper around rxjs {@link retryWhen} operator with custom retry policy support.
+ * Add automatic retry to a gRPC call {@link Observable}.
  *
- * - If the error does not match the retry policy's shouldRetry condition then the error is rethrown
- * - If the error is retryable and exceeds the maximum retry attempts then the error is rethrown
- * - If the provided beforeRetry() promise is rejected then the error is rethrown
- * - Otherwise the call from the source observable is retried with an exponential backoff
+ * - If the error does not match the retry policy's shouldRetry condition, the call is not retried and
+ *   the Observable fails with the error from the gRPC call
+ * - If the error is retryable and exceeds the maximum retry attempts, the call fails with the error
+ * - If the provided beforeRetry() Observable fails then the call fails with the error from beforeRetry
+ * - Otherwise the call from the source observable is retried with a configurable exponential backoff
  *
- * @param retryPolicy - Custom retry policy
+ * @param retryPolicy - a RetryPolicy that specifies whether and when to retry
  */
-export const retryWithGrpc = (retryPolicy: RetryPolicy) => <T>(source: Observable<T>): Observable<T> =>
+export const retry = (retryPolicy: RetryPolicy) => <T>(source: Observable<T>): Observable<T> =>
   source.pipe(
     retryWhen((errors: Observable<unknown>) =>
       errors.pipe(
@@ -159,13 +149,11 @@ export const retryWithGrpc = (retryPolicy: RetryPolicy) => <T>(source: Observabl
           }
           return iif(
             () => attempt < retryPolicy.maxRetries && retryPolicy.shouldRetry(error),
-            retryPolicy.beforeRetry(attempt)
-              .pipe(
-                /*
-                 * If the rejected promise's error is undefined, then propagate the source observable's error.
-                 */
-                catchError(e => e ? throwError(e) : throwError(error))
-              ),
+            retryPolicy.beforeRetry(attempt).pipe(
+              catchError(e => e
+                ? throwError(e)
+                : throwError(new Error("beforeRetry failed with undefined error")))
+            ),
             throwError(error)
           )
         }),
