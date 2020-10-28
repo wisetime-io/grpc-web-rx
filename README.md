@@ -12,7 +12,7 @@ Pre-requisites (the following tools need to be installed first):
 
 Run tests by executing the following command:
 
-`$ make test`
+`$ make test-local`
 
 This starts a local gRPC node server together with an Envoy proxy (via Docker) where the tests will be run against.
 
