@@ -7,7 +7,7 @@ import { from, RetryPolicy, retry } from "../../../index"
 import * as Grpc from "grpc-web"
 import fakerStatic from "faker"
 import { of, throwError } from "rxjs"
-import { addExponentialDelay } from "../../../client"
+import { addExponentialDelay } from "../../../retry"
 
 setupIntegrationTests()
 
