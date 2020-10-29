@@ -1,27 +1,10 @@
-# gRPC Web Rx
+# gRPC-Web-Rx
 
-gRPC Web Rx is a TypeScript library that integrates RxJS with gRPC Web.
-
-## Quick Start
-
-Pre-requisites (the following tools need to be installed first):
-
-- [protoc](https://github.com/protocolbuffers/protobuf/releases)
-- [protoc-gen-grpc-web](https://github.com/grpc/grpc-web/releases)
-- [Docker](https://docs.docker.com/get-docker/) - needed for running local Envoy proxy
-
-Run tests by executing the following command:
-
-`$ make test-local`
-
-This starts a local gRPC node server together with an Envoy proxy (via Docker) where the tests will be run against.
+gRPC-Web-Rx is a TypeScript library that integrates [gRPC-Web](https://github.com/grpc/grpc-web) with [RxJS](https://github.com/ReactiveX/rxjs).
 
 ## Usage
 
-The library provides a `from` creation operator and a `retry` error handling operator for wrapping gRPC-web calls with a
-`rxjs.Observable` plus support for configurable retry policies via the provided `RetryPolicy` type.
-
-Retries are executed with exponential backoff based off of the interval (in milliseconds) from the provided retry policy.
+gRPC-Web-Rx provides a `from` operator that creates an `Observable` from a gRPC call. The library also provides a `retry` operator for retrying failed calls.
 
 ```typescript
 const grpcClient = new FooClient("http://localhost:8081");
@@ -62,4 +45,21 @@ from<FooResponse>(() => grpcClient.foo(new FooRequest(), {}))
 
 ## Limitations
 
-- This library only supports unary and server-streaming gRPC calls.
+- This library only supports unary and server streaming gRPC calls.
+
+## Contributing
+
+You will need to install the following to work on gRPC-Web-Rx:
+
+- [protoc](https://github.com/protocolbuffers/protobuf/releases)
+- [protoc-gen-grpc-web](https://github.com/grpc/grpc-web/releases)
+- [Docker](https://docs.docker.com/get-docker/) is needed to run a local Envoy proxy for integration tests
+
+Run tests by executing the following command:
+
+```text
+$ make test-local
+```
+
+This starts a local gRPC node server together with an Envoy proxy (via Docker) where the tests will be run against.
+
