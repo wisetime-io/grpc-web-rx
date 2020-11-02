@@ -18,6 +18,21 @@ steps:
     depends_on:
       - build
 
+  - name: trigger-bamboo-artifact-master-build
+    image: registry.dev.wisetime.com/alpine-git-bash
+    environment:
+      BAMBOO_USER:
+        from_secret: bamboo-user
+      BAMBOO_PASS:
+        from_secret: bamboo-pass
+    commands:
+      - curl --silent --show-error --fail -u $${BAMBOO_USER}:$${BAMBOO_PASS} -X POST -d "ARTIFACT&ExecuteAllStages" https://bamboo.dev.wisetime.com/rest/api/latest/queue/WT-GRPCWEB
+    when:
+      branch:
+        - master
+      event:
+        - push
+
 services:
   - name: node-server
     image: registry.dev.wisetime.com/check-frontend-v2
@@ -33,6 +48,30 @@ services:
 trigger:
   event:
     - push
+
+---
+kind: pipeline
+name: mirror-to-github
+depends_on:
+  - unit-test
+
+steps:
+  - name: github-push
+    image: quay.io/wt-build-support/alpine-git-bash
+    environment:
+      GITHUB_SSH_KEY_B64:
+        from_secret: github-ssh-key-b64
+    commands:
+      - ./mirror.sh
+    when:
+      ref:
+        - refs/heads/master
+        - refs/tags/*
+
+trigger:
+  event:
+    - push
+    - tag
 
 ---
 kind: secret
@@ -55,6 +94,13 @@ name: bamboo-pass
 get:
   path: drone/bamboo/trigger
   name: bamboo-pass
+
+---
+kind: secret
+name: github-ssh-key-b64
+get:
+  path: drone/publish/github/grpc-web-rx
+  name: gh-grpc-web-rx-key-b64
 
 # example local builds:
 #  - drone exec --trusted --include test --branch feature/WT-7371-configuration-as-code
