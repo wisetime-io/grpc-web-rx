@@ -57,12 +57,12 @@ depends_on:
 
 steps:
   - name: github-push
-    image: quay.io/wt-build-support/alpine-git-bash
+    image: registry.dev.wisetime.com/alpine-git-bash
     environment:
       GITHUB_SSH_KEY_B64:
         from_secret: github-ssh-key-b64
     commands:
-      - ./mirror.sh
+      - scripts/mirror.sh
     when:
       ref:
         - refs/heads/master
