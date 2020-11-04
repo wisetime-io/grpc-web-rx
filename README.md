@@ -62,8 +62,8 @@ The `from` operator executes a gRPC call and provides an `Observable` of the res
 
 ```typescript
 import { from } from "grpc-web-rx"
-import { CreateTodoRequest } from "generated/todo_pb"
-import { TodoServiceClient } from "generated/TodoServiceClientPb"
+import { CreateTodoRequest, WatchTodoRequest } from "./generated/todo_pb"
+import { TodoServiceClient } from "./generated/TodoServiceClientPb"
 
 const client = new TodoServiceClient("http://localhost:8080")
 
@@ -92,6 +92,7 @@ In the following example, we configure a `RetryPolicy` that will retry calls tha
 ```typescript
 import Grpc from "grpc-web"
 import { from, retry, responseNotOk, addExponentialDelay } from "grpc-web-rx"
+import { CreateTodoRequest } from "./generated/todo_pb"
 
 const policy = responseNotOk(
   error => error.code == Grpc.StatusCode.PERMISSION_DENIED,
