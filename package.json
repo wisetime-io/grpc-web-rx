@@ -1,6 +1,6 @@
 {
   "name": "grpc-web-rx",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://wisetime.com",
   "main": "src/index.ts",
   "license": "Apache-2.0",
