@@ -44,7 +44,7 @@ message CreateTodoRequest {
 message WatchTodosRequest {}
 
 message TodoList {
-  repeated Todo todos = 2;
+  repeated Todo todos = 1;
 }
 ```
 
