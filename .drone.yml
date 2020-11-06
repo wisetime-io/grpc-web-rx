@@ -19,7 +19,7 @@ steps:
       - build
 
   - name: trigger-bamboo-artifact-master-build
-    image: registry.dev.wisetime.com/alpine-git-bash
+    image: curlimages/curl:7.72.0
     environment:
       BAMBOO_USER:
         from_secret: bamboo-user
@@ -57,7 +57,7 @@ depends_on:
 
 steps:
   - name: github-push
-    image: registry.dev.wisetime.com/alpine-git-bash
+    image: registry.dev.wisetime.com/git
     environment:
       GITHUB_SSH_KEY_B64:
         from_secret: github-ssh-key-b64
