@@ -6,7 +6,7 @@ import { catchError, delay, mergeMap, retryWhen } from "rxjs/operators"
 
 /**
  * Configurable retry policy with support for specifying condition(s) to retry, maximum number of retries, and interval
- * between retries. This type is used with the {@link retryWithGrpc} pipe-able operator.
+ * between retries. This type is used with the {@link retry} pipe-able operator.
  *
  * @param shouldRetry - Determines whether the call should be retried or not
  * @param maxRetries  - Number of times to retry the request before giving up
@@ -24,7 +24,11 @@ export type RetryPolicy = {
  * Based on the backoff-rxjs lib.
  * @see {@link https://github.com/alex-okrushko/backoff-rxjs/blob/2e98471e445d338662a218c6aa065e1dd9a18d6c/src/utils.ts#L7|backoff-rxjs}
  */
-const exponentialBackoff = (attempt: number, interval: number, maxInterval: number) => {
+const exponentialBackoff = (
+  attempt: number,
+  interval: number,
+  maxInterval: number
+): number => {
   const backoffInterval = Math.pow(2, attempt) * interval
   return Math.min(backoffInterval, maxInterval)
 }
@@ -35,9 +39,11 @@ const exponentialBackoff = (attempt: number, interval: number, maxInterval: numb
  * @param initialDelay - Initial delay that is applied on first retry.
  * @param maxDelay - Maximum delay to apply. Defaults to 1 hour.
  */
-export const addExponentialDelay =
-  <T>(initialDelay: number, maxDelay?: number) => (observable: Observable<T>) => (attempt: number): Observable<T> =>
-    observable
+export const withExponentialDelay = <T>(
+  initialDelay: number,
+  maxDelay?: number
+) => (run: () => Observable<T>) => (attempt: number): Observable<T> =>
+    run()
       .pipe(
         delay(exponentialBackoff(attempt, initialDelay, maxDelay || 60_000)),
         catchError(e => throwError(e))
@@ -66,7 +72,9 @@ export const responseNotOk = (
   beforeRetry,
 })
 
-const isGrpcError = (error: unknown): error is Grpc.Error => {
+const isGrpcError = (
+  error: unknown
+): error is Grpc.Error => {
   if (!error) {
     return false
   }
@@ -85,7 +93,9 @@ const isGrpcError = (error: unknown): error is Grpc.Error => {
  *
  * @param retryPolicy - a RetryPolicy that specifies whether and when to retry
  */
-export const retry = (retryPolicy: RetryPolicy) => <T>(source: Observable<T>): Observable<T> =>
+export const retry = (
+  retryPolicy: RetryPolicy
+) => <T>(source: Observable<T>): Observable<T> =>
   source.pipe(
     retryWhen((errors: Observable<unknown>) =>
       errors.pipe(

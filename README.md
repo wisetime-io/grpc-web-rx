@@ -78,7 +78,7 @@ from(() => client.createTodo(new CreateTodoRequest().setTitle("Buy milk")))
 from(() => client.watchTodos(new WatchTodosRequest()))
   .subscribe({
     next: todos => console.log(`Received updated todo list: ${todos}`),
-    error: error => console.error(`Received error status code: ${error.code}`)
+    error: error => console.error(`Received error status code: ${error.code}`),
     complete: () => console.log("Notification stream has ended")
   })
 ```
