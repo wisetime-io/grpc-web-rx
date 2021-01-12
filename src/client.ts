@@ -3,14 +3,18 @@
 import Grpc from "grpc-web"
 import { Observable, Subscriber } from "rxjs"
 
-type UnaryRpc<T> = () => Promise<T>
-type ServerStreamingRpc = () => Grpc.ClientReadableStream<unknown>
+export type UnaryRpc<T> = () => Promise<T>
+export type ServerStreamingRpc = () => Grpc.ClientReadableStream<unknown>
 
-const isServerStreaming =
-  <T>(response: ReturnType<UnaryRpc<T>> | ReturnType<ServerStreamingRpc>): response is ReturnType<ServerStreamingRpc> =>
+const isServerStreaming = <T>(
+  response: ReturnType<UnaryRpc<T>> | ReturnType<ServerStreamingRpc>
+): response is ReturnType<ServerStreamingRpc> =>
     "on" in response
 
-const fromServerStreaming = <T>(call: Grpc.ClientReadableStream<unknown>, observer: Subscriber<T>): void => {
+const fromServerStreaming = <T>(
+  call: Grpc.ClientReadableStream<unknown>,
+  observer: Subscriber<T>
+): void => {
   call.on("data", data =>
     data !== undefined
       ? observer.next(data as T)
@@ -24,13 +28,16 @@ const fromServerStreaming = <T>(call: Grpc.ClientReadableStream<unknown>, observ
   })
 }
 
-const fromUnary = <T>(call: Promise<T>, observer: Subscriber<T>): Promise<void> =>
-  call
-    .then(value => {
-      observer.next(value)
-      observer.complete()
-    })
-    .catch((err: unknown) => observer.error(err))
+const fromUnary = <T>(
+  call: Promise<T>,
+  observer: Subscriber<T>
+): Promise<void> =>
+    call
+      .then(value => {
+        observer.next(value)
+        observer.complete()
+      })
+      .catch((err: unknown) => observer.error(err))
 
 /**
  * Create an {@link Observable} from a gRPC call.
@@ -40,12 +47,14 @@ const fromUnary = <T>(call: Promise<T>, observer: Subscriber<T>): Promise<void> 
  *
  * @param rpc - gRPC-web call which can either be unary or server-streaming
  */
-export const from = <T>(rpc: UnaryRpc<T> | ServerStreamingRpc): Observable<T> =>
-  new Observable<T>(observer => {
-    const call = rpc()
-    if (isServerStreaming<T>(call)) {
-      fromServerStreaming(call, observer)
-    } else {
-      fromUnary(call, observer)
-    }
-  })
+export const from = <T>(
+  rpc: UnaryRpc<T> | ServerStreamingRpc
+): Observable<T> =>
+    new Observable<T>(observer => {
+      const call = rpc()
+      if (isServerStreaming<T>(call)) {
+        fromServerStreaming(call, observer)
+      } else {
+        fromUnary(call, observer)
+      }
+    })
