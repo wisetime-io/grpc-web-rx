@@ -91,13 +91,13 @@ In the following example, we configure a `RetryPolicy` that will retry calls tha
 
 ```typescript
 import Grpc from "grpc-web"
-import { from, retry, addExponentialDelay } from "grpc-web-rx"
+import { from, retry, withExponentialDelay } from "grpc-web-rx"
 import { CreateTodoRequest } from "./generated/todo_pb"
 
 const policy = {
   shouldRetry: error => error.code == Grpc.StatusCode.PERMISSION_DENIED,
   maxRetries: 3,
-  beforeRetry: addExponentialDelay(200)(refreshIdToken()),
+  beforeRetry: withExponentialDelay(200)(refreshIdToken()),
 }
 
 from(() => client.createTodo(new CreateTodoRequest().setTitle("Very important task!")))
