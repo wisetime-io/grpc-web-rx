@@ -1,0 +1,49 @@
+---
+version: 2
+plan:
+  project-key: WT
+  key: GRPCWEB
+  name: grpc-web-rx
+stages:
+  - Default Stage:
+      manual: false
+      final: false
+      jobs:
+        - Default Job
+Default Job:
+  key: JOB1
+  tasks:
+    - checkout:
+        force-clean-build: 'false'
+branches:
+  create: manually
+  delete: never
+  link-to-jira: true
+notifications: []
+labels: []
+other:
+  concurrent-build-plugin: system-default
+---
+version: 2
+plan:
+  key: WT-GRPCWEB
+plan-permissions:
+  - groups:
+      - bamboo-build-team
+    permissions:
+      - view
+      - edit
+      - build
+  - groups:
+      - bamboo-admin
+    permissions:
+      - view
+      - edit
+      - build
+      - clone
+      - admin
+  - roles:
+      - logged-in
+    permissions:
+      - view
+...
