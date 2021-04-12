@@ -2,7 +2,7 @@
 
 import Grpc from "grpc-web"
 import { iif, Observable, of, throwError } from "rxjs"
-import { catchError, delay, mergeMap, retryWhen } from "rxjs/operators"
+import { catchError, delay, retryWhen, switchMap } from "rxjs/operators"
 
 /**
  * Configurable retry policy with support for specifying condition(s) to retry, maximum number of retries, and interval
@@ -99,7 +99,7 @@ export const retry = (
   source.pipe(
     retryWhen((errors: Observable<unknown>) =>
       errors.pipe(
-        mergeMap((error: unknown, attempt: number) => {
+        switchMap((error: unknown, attempt: number) => {
           if (!isGrpcError(error)) {
             return throwError(error)
           }

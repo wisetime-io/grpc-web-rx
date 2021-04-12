@@ -1,6 +1,6 @@
 // Copyright (c) 2020 WiseTime. All rights reserved.
 
-import { setupIntegrationTests, testNoOp } from "./testUtil"
+import { rpcWithMultipleErrors, setupIntegrationTests, testNoOp } from "./testUtil"
 import { FailThenSucceedRequest, FailThenSucceedResponse } from "../../../generated/client/test_scenarios_pb"
 import { RetryScenariosClient } from "../../../generated/client/Test_scenariosServiceClientPb"
 import { from, RetryPolicy, retry } from "../../../index"
@@ -59,26 +59,31 @@ describe("retry scenarios impl", () => {
   }, timeout)
 
   it("should retry streaming rpc until success and complete", (done) => {
-    const numFailuresUntilSuccess = 2
+    const numFailuresUntilSuccess = 5
     const request = generateRetryRequest(numFailuresUntilSuccess)
-    const withDelay = withExponentialDelay<void>(2000, 60_000)
+    const withDelay = withExponentialDelay<void>(100, 1_000)
     const beforeRetry = withDelay(() => of(undefined))
     const retryPolicy = {
       shouldRetry: (error: Grpc.Error) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
-      maxRetries: 2,
+      maxRetries: 15,
       beforeRetry
     }
 
-    from<FailThenSucceedResponse>(() => retryClient.failThenSucceedStream(request, {}))
+    let requestsCount = 0
+    rpcWithMultipleErrors<FailThenSucceedResponse>(() => {
+      requestsCount++
+      return retryClient.failThenSucceedStream(request, {})
+    })
       .pipe(retry(retryPolicy))
       .subscribe({
         next: value => {
           expect(value.getNumFailures()).toEqual(numFailuresUntilSuccess)
-          done()
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        error: _err => console.log(_err),
-        complete: () => done()
+        error: err => console.log(err),
+        complete: () => {
+          expect(requestsCount).toEqual(numFailuresUntilSuccess + 1)
+          done()
+        }
       })
   }, timeout)
 
