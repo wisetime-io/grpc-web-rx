@@ -6,7 +6,7 @@ import { RetryScenariosClient } from "../../../generated/client/Test_scenariosSe
 import { from, RetryPolicy, retry } from "../../../index"
 import * as Grpc from "grpc-web"
 import fakerStatic from "faker"
-import { of, throwError } from "rxjs"
+import { iif, of, throwError } from "rxjs"
 import { withExponentialDelay } from "../../../retry"
 
 setupIntegrationTests()
@@ -113,5 +113,21 @@ describe("retry scenarios impl", () => {
     }
 
     expectRpcRetryFailure(request, retryPolicyWithRejectedPromise, done)
+  }, timeout)
+
+  it("should have access to exception in beforeRetry()", (done) => {
+    const numFailuresUntilSuccess = 2
+    const request = generateRetryRequest(numFailuresUntilSuccess)
+    const withDelay = withExponentialDelay<void>(500, 60_000)
+    const beforeRetry = withDelay(
+      (error) => iif(() =>  error.code == Grpc.StatusCode.PERMISSION_DENIED, throwError("error"))
+    )
+    const retryPolicy = {
+      shouldRetry: (error: Grpc.Error) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
+      maxRetries: 2,
+      beforeRetry
+    }
+
+    expectRpcRetryFailure(request, retryPolicy, done)
   }, timeout)
 })

@@ -16,7 +16,7 @@ import { catchError, delay, retryWhen, switchMap } from "rxjs/operators"
 export type RetryPolicy = {
   shouldRetry: (error: Grpc.Error) => boolean,
   maxRetries: number,
-  beforeRetry: (attempt: number) => Observable<void>,
+  beforeRetry: (attempt: number, error: Grpc.Error) => Observable<void>,
 }
 
 /**
@@ -37,13 +37,13 @@ const exponentialBackoff = (
  * Apply a delay to an Observable, that increases exponentially with the number of retry attempts.
  *
  * @param initialDelay - Initial delay that is applied on first retry.
- * @param maxDelay - Maximum delay to apply. Defaults to 1 hour.
+ * @param maxDelay - Maximum delay to apply. Defaults to 1 minute.
  */
 export const withExponentialDelay = <T>(
   initialDelay: number,
   maxDelay?: number
-) => (run: () => Observable<T>) => (attempt: number): Observable<T> =>
-    run()
+) => (run: (error: Grpc.Error) => Observable<T>) => (attempt: number, error: Grpc.Error): Observable<T> =>
+    run(error)
       .pipe(
         delay(exponentialBackoff(attempt, initialDelay, maxDelay || 60_000)),
         catchError(e => throwError(e))
@@ -53,9 +53,9 @@ export const withExponentialDelay = <T>(
  * A retry policy that never retries calls.
  */
 export const never: RetryPolicy = {
-  shouldRetry: (_: Grpc.Error) => false,
+  shouldRetry: () => false,
   maxRetries: 0,
-  beforeRetry: (_: number) => of(undefined),
+  beforeRetry: () => of(undefined),
 }
 
 /**
@@ -65,7 +65,7 @@ export const never: RetryPolicy = {
 export const responseNotOk = (
   shouldRetry: (error: Grpc.Error) => boolean,
   maxRetries = 2,
-  beforeRetry: (attempt: number) => Observable<void> = _ => of(undefined),
+  beforeRetry: (attempt: number, error: Grpc.Error) => Observable<void> = () => of(undefined),
 ): RetryPolicy => ({
   shouldRetry,
   maxRetries,
@@ -105,7 +105,7 @@ export const retry = (
           }
           return iif(
             () => attempt < retryPolicy.maxRetries && retryPolicy.shouldRetry(error),
-            retryPolicy.beforeRetry(attempt).pipe(
+            retryPolicy.beforeRetry(attempt, error).pipe(
               catchError(e => e
                 ? throwError(e)
                 : throwError(new Error("beforeRetry failed with undefined error")))
