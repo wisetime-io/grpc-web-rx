@@ -6,8 +6,9 @@ import { RetryScenariosClient } from "../../../generated/client/Test_scenariosSe
 import { from, RetryPolicy, retry } from "../../../index"
 import * as Grpc from "grpc-web"
 import fakerStatic from "faker"
-import { iif, of, throwError } from "rxjs"
+import { iif, of } from "rxjs"
 import { withExponentialDelay } from "../../../retry"
+import { fromPromise } from "rxjs/internal-compatibility"
 
 setupIntegrationTests()
 
@@ -38,7 +39,7 @@ describe("retry scenarios impl", () => {
     const numFailuresUntilSuccess = 2
     const request = generateRetryRequest(numFailuresUntilSuccess)
     const withDelay = withExponentialDelay<void>(500, 60_000)
-    const beforeRetry = withDelay(() => of(undefined))
+    const beforeRetry = withDelay(_ => of(undefined))
     const retryPolicy = {
       shouldRetry: (error: Grpc.Error) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
       maxRetries: 2,
@@ -62,7 +63,7 @@ describe("retry scenarios impl", () => {
     const numFailuresUntilSuccess = 5
     const request = generateRetryRequest(numFailuresUntilSuccess)
     const withDelay = withExponentialDelay<void>(100, 1_000)
-    const beforeRetry = withDelay(() => of(undefined))
+    const beforeRetry = withDelay(_ => of(undefined))
     const retryPolicy = {
       shouldRetry: (error: Grpc.Error) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
       maxRetries: 15,
@@ -91,7 +92,7 @@ describe("retry scenarios impl", () => {
     const numFailuresUntilSuccess = 5
     const request = generateRetryRequest(numFailuresUntilSuccess)
     const withDelay = withExponentialDelay<void>(500, 60_000)
-    const beforeRetry = withDelay(() => of(undefined))
+    const beforeRetry = withDelay(_ => of(undefined))
     const retryPolicyExceedingMaxRetries = {
       shouldRetry: (error: Grpc.Error) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
       maxRetries: numFailuresUntilSuccess - 1,
@@ -105,7 +106,7 @@ describe("retry scenarios impl", () => {
     const numFailuresUntilSuccess = 2
     const request = generateRetryRequest(numFailuresUntilSuccess)
     const withDelay = withExponentialDelay<void>(500, 60_000)
-    const beforeRetry = withDelay(() => throwError("error"))
+    const beforeRetry = withDelay(_ => fromPromise(Promise.reject()))
     const retryPolicyWithRejectedPromise = {
       shouldRetry: (error: Grpc.Error) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
       maxRetries: 2,
@@ -120,7 +121,7 @@ describe("retry scenarios impl", () => {
     const request = generateRetryRequest(numFailuresUntilSuccess)
     const withDelay = withExponentialDelay<void>(500, 60_000)
     const beforeRetry = withDelay(
-      (error) => iif(() =>  error.code == Grpc.StatusCode.PERMISSION_DENIED, throwError("error"))
+      (error) => iif(() =>  error.code == Grpc.StatusCode.PERMISSION_DENIED, fromPromise(Promise.reject()))
     )
     const retryPolicy = {
       shouldRetry: (error: Grpc.Error) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
