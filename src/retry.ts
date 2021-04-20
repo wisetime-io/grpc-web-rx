@@ -37,7 +37,7 @@ const exponentialBackoff = (
  * Apply a delay to an Observable, that increases exponentially with the number of retry attempts.
  *
  * @param initialDelay - Initial delay that is applied on first retry.
- * @param maxDelay - Maximum delay to apply. Defaults to 1 minute.
+ * @param maxDelay - Maximum delay to apply. Defaults to 1 hour.
  */
 export const withExponentialDelay = <T>(
   initialDelay: number,
@@ -45,7 +45,7 @@ export const withExponentialDelay = <T>(
 ) => (run: (error: Grpc.Error) => Observable<T>) => (attempt: number, error: Grpc.Error): Observable<T> =>
     run(error)
       .pipe(
-        delay(exponentialBackoff(attempt, initialDelay, maxDelay || 60_000)),
+        delay(exponentialBackoff(attempt, initialDelay, maxDelay || 3600_000)),
         catchError(e => throwError(e))
       )
 
