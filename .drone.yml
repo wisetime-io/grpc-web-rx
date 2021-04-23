@@ -4,7 +4,7 @@ name: unit-test
 
 steps:
   - name: build
-    image: registry.dev.wisetime.com/check-frontend-v2
+    image: gcr.io/wise-pub/wt-node-14@sha256:2e083620e5a0acedc464641c642654264b8704baf96da2e79239f210ce3c0eda
     commands:
       - make clean
       - make init
@@ -12,7 +12,7 @@ steps:
       - make build
 
   - name: test
-    image: registry.dev.wisetime.com/check-frontend-v2
+    image: gcr.io/wise-pub/wt-node-14@sha256:2e083620e5a0acedc464641c642654264b8704baf96da2e79239f210ce3c0eda
     commands:
       - ENVOY_HOST='envoyproxy' make integration-test
     depends_on:
@@ -20,7 +20,7 @@ steps:
 
 services:
   - name: node-server
-    image: registry.dev.wisetime.com/check-frontend-v2
+    image: gcr.io/wise-pub/wt-node-14@sha256:2e083620e5a0acedc464641c642654264b8704baf96da2e79239f210ce3c0eda
     commands:
       - ./node_modules/.bin/ts-node src/test/integration/server/server.ts
     depends_on:
