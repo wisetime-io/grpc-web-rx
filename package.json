@@ -4,6 +4,10 @@
   "homepage": "https://wisetime.com",
   "main": "src/index.ts",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wisetime-io/grpc-web-rx.git"
+  },
   "dependencies": {
     "grpc-web": "^1.2.1",
     "rxjs": "^6.6.3",
