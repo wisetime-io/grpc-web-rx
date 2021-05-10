@@ -35,7 +35,7 @@
   "scripts": {
     "test": "jest --no-cache",
     "test-local": "make test-generate-proto && npm run start-local-server && sleep 2 && make start-local-proxy && sleep 2 && jest --no-cache && npm run stop-local-server",
-    "build": "make test-generate-proto && tsc && cp package.json dist/package.json && cp README.md dist/README.md",
+    "npm-publish": "make test-generate-proto && tsc && cp package.json dist/package.json && cp README.md dist/README.md && cd dist && npm publish",
     "eslint": "eslint --quiet src",
     "start-local-server": "forever start -v -c ts-node src/test/integration/server/server.ts",
     "stop-local-server": "forever stopall"
