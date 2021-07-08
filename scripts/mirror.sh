@@ -3,11 +3,14 @@ set -o errexit ; set -o errtrace ; set -o pipefail
 
 git config --global user.email "devops@wisetime.com"
 git config --global user.name "WiseTime Bot"
+git reset --hard
+git clean -fd
 git fetch --tags
 # Create Orphan branch
 git checkout --orphan temp_branch
 # Remove unwanted files/dirs from the repo and create fresh commit
-rm -rf bamboo-specs mirror.sh
+rm -rf bamboo-specs 
+rm -rf scripts/mirror.sh
 rm .drone.yml
 git add -A
 git commit -am "Mirror Repo"
