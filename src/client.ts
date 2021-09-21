@@ -1,6 +1,6 @@
 // Copyright (c) 2020 WiseTime. All rights reserved.
 
-import Grpc from "grpc-web"
+import * as Grpc from "grpc-web"
 import { Observable, Subscriber } from "rxjs"
 
 export type UnaryRpc<T> = () => Promise<T>

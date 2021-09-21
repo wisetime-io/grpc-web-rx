@@ -2,7 +2,7 @@
 
 import { ServerStreamingRpc } from "../../../client"
 import { Observable } from "rxjs"
-import Grpc from "grpc-web"
+import * as Grpc from "grpc-web"
 
 /**
  * Add support for running grpc-web integration tests in a node server environment.

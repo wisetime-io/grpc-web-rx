@@ -1,6 +1,6 @@
 // Copyright (c) 2020 WiseTime. All rights reserved.
 
-import Grpc from "grpc-web"
+import * as Grpc from "grpc-web"
 import { iif, Observable, of, throwError } from "rxjs"
 import { catchError, delay, retryWhen, switchMap } from "rxjs/operators"
 
