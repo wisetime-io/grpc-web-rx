@@ -13,17 +13,9 @@ steps:
 
   - name: node-server
     image: gcr.io/wise-pub/wt-node-14@sha256:2e083620e5a0acedc464641c642654264b8704baf96da2e79239f210ce3c0eda
-    depends_on:
-      - build
     commands:
       - ./node_modules/.bin/ts-node src/test/integration/server/server.ts &
-
-  - name: test
-    image: gcr.io/wise-pub/wt-node-14@sha256:2e083620e5a0acedc464641c642654264b8704baf96da2e79239f210ce3c0eda
-    commands:
       - ENVOY_HOST='envoyproxy' make integration-test
-    depends_on:
-      - build
 
 services:
   - name: envoyproxy
