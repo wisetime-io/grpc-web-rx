@@ -16,8 +16,6 @@ steps:
     commands:
       - ./node_modules/.bin/ts-node src/test/integration/server/server.ts &
       - ENVOY_HOST='envoyproxy' make integration-test
-    depends_on:
-      - build
 
 services:
   - name: envoyproxy
