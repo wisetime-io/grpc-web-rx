@@ -11,6 +11,13 @@ steps:
       - make lint
       - make build
 
+  - name: node-server
+    image: gcr.io/wise-pub/wt-node-14@sha256:2e083620e5a0acedc464641c642654264b8704baf96da2e79239f210ce3c0eda
+    depends_on:
+      - build
+    commands:
+      - ./node_modules/.bin/ts-node src/test/integration/server/server.ts &
+
   - name: test
     image: gcr.io/wise-pub/wt-node-14@sha256:2e083620e5a0acedc464641c642654264b8704baf96da2e79239f210ce3c0eda
     commands:
@@ -19,12 +26,6 @@ steps:
       - build
 
 services:
-  - name: node-server
-    image: gcr.io/wise-pub/wt-node-14@sha256:2e083620e5a0acedc464641c642654264b8704baf96da2e79239f210ce3c0eda
-    commands:
-      - ./node_modules/.bin/ts-node src/test/integration/server/server.ts
-    depends_on:
-      - build
   - name: envoyproxy
     image: envoyproxy/envoy:v1.15.0
     commands:
