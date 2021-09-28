@@ -6,9 +6,8 @@ import { RetryScenariosClient } from "../../../generated/client/Test_scenariosSe
 import { from, RetryPolicy, retry } from "../../../index"
 import * as Grpc from "grpc-web"
 import * as fakerStatic from "faker"
-import { iif, of } from "rxjs"
+import { iif, of, from as fromPromise } from "rxjs"
 import { withExponentialDelay } from "../../../retry"
-import { fromPromise } from "rxjs/internal-compatibility"
 
 setupIntegrationTests()
 
