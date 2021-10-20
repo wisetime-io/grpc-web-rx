@@ -14,9 +14,9 @@ import { catchError, delay, retryWhen, switchMap } from "rxjs/operators"
  * provided min and max intervals.
  */
 export type RetryPolicy = {
-  shouldRetry: (error: Grpc.Error) => boolean,
+  shouldRetry: (error: Grpc.RpcError) => boolean,
   maxRetries: number,
-  beforeRetry: (attempt: number, error: Grpc.Error) => Observable<void>,
+  beforeRetry: (attempt: number, error: Grpc.RpcError) => Observable<void>,
 }
 
 /**
@@ -42,7 +42,7 @@ const exponentialBackoff = (
 export const withExponentialDelay = <T>(
   initialDelay: number,
   maxDelay?: number
-) => (run: (error: Grpc.Error) => Observable<T>) => (attempt: number, error: Grpc.Error): Observable<T> =>
+) => (run: (error: Grpc.RpcError) => Observable<T>) => (attempt: number, error: Grpc.RpcError): Observable<T> =>
     run(error)
       .pipe(
         delay(exponentialBackoff(attempt, initialDelay, maxDelay || 3600_000)),
@@ -63,9 +63,9 @@ export const never: RetryPolicy = {
  * Note that calls that fail for other reasons (e.g. network failure) will not be retried.
  */
 export const responseNotOk = (
-  shouldRetry: (error: Grpc.Error) => boolean,
+  shouldRetry: (error: Grpc.RpcError) => boolean,
   maxRetries = 2,
-  beforeRetry: (attempt: number, error: Grpc.Error) => Observable<void> = () => of(undefined),
+  beforeRetry: (attempt: number, error: Grpc.RpcError) => Observable<void> = () => of(undefined),
 ): RetryPolicy => ({
   shouldRetry,
   maxRetries,
@@ -74,11 +74,11 @@ export const responseNotOk = (
 
 const isGrpcError = (
   error: unknown
-): error is Grpc.Error => {
+): error is Grpc.RpcError => {
   if (!error) {
     return false
   }
-  const grpcError = error as Grpc.Error
+  const grpcError = error as Grpc.RpcError
   return "code" in grpcError && "message" in grpcError
 }
 

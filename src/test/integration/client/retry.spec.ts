@@ -40,7 +40,7 @@ describe("retry scenarios impl", () => {
     const withDelay = withExponentialDelay<void>(500, 60_000)
     const beforeRetry = withDelay(_ => of(undefined))
     const retryPolicy = {
-      shouldRetry: (error: Grpc.Error) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
+      shouldRetry: (error: Grpc.RpcError) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
       maxRetries: 2,
       beforeRetry
     }
@@ -64,7 +64,7 @@ describe("retry scenarios impl", () => {
     const withDelay = withExponentialDelay<void>(100, 1_000)
     const beforeRetry = withDelay(_ => of(undefined))
     const retryPolicy = {
-      shouldRetry: (error: Grpc.Error) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
+      shouldRetry: (error: Grpc.RpcError) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
       maxRetries: 15,
       beforeRetry
     }
@@ -93,7 +93,7 @@ describe("retry scenarios impl", () => {
     const withDelay = withExponentialDelay<void>(500, 60_000)
     const beforeRetry = withDelay(_ => of(undefined))
     const retryPolicyExceedingMaxRetries = {
-      shouldRetry: (error: Grpc.Error) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
+      shouldRetry: (error: Grpc.RpcError) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
       maxRetries: numFailuresUntilSuccess - 1,
       beforeRetry
     }
@@ -107,7 +107,7 @@ describe("retry scenarios impl", () => {
     const withDelay = withExponentialDelay<void>(500, 60_000)
     const beforeRetry = withDelay(_ => fromPromise(Promise.reject()))
     const retryPolicyWithRejectedPromise = {
-      shouldRetry: (error: Grpc.Error) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
+      shouldRetry: (error: Grpc.RpcError) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
       maxRetries: 2,
       beforeRetry
     }
@@ -123,7 +123,7 @@ describe("retry scenarios impl", () => {
       (error) => iif(() =>  error.code == Grpc.StatusCode.PERMISSION_DENIED, fromPromise(Promise.reject()), EMPTY)
     )
     const retryPolicy = {
-      shouldRetry: (error: Grpc.Error) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
+      shouldRetry: (error: Grpc.RpcError) => error.code == Grpc.StatusCode.PERMISSION_DENIED,
       maxRetries: 2,
       beforeRetry
     }
