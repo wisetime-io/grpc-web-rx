@@ -9,6 +9,7 @@ module.exports = {
   "transform": {
     "^.+\\.(ts|tsx)$": "ts-jest"
   },
-  "testEnvironment": "node"
+  "testEnvironment": "node",
+  "testTimeout": 30000
 }
 
