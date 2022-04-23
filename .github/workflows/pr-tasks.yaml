@@ -53,7 +53,10 @@ jobs:
             comments.push(...prReviews.map(comment => comment.body))
             var openTasks = []
             var closedTasks = []
-            comments.flatMap(comment => comment.split("\n"))
+            comments
+                .filter(comment => comment !== null)
+                .filter(comment => comment !== undefined)
+                .flatMap(comment => comment.split("\n"))
                 .map(line => line.trim())
                 .filter(line => line.length > 0)
                 .forEach(line => {
