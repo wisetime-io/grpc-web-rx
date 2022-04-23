@@ -1,0 +1,87 @@
+on:
+  issue_comment:
+  pull_request_review_comment:
+  pull_request_review:
+  pull_request:
+    types:
+    - opened
+    - edited
+
+jobs:
+  pr_commented:
+    # This job only runs for pull request comments
+    name: PR comment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            if (context.eventName === "issue_comment" && context.payload.issue.pull_request === undefined) {
+              console.log("Issue comment is ignored")
+              return
+            }
+            const pr = await github.rest.pulls.get({
+                owner: context.issue.owner,
+                repo: context.issue.repo,
+                pull_number: context.issue.number
+            })
+            if (pr.status !== 200) {
+                throw "Failed to load pr: " + pr
+            }
+            var comments = []
+        
+            comments.push(pr.data.body)
+            const issueComments = await github.paginate(github.rest.issues.listComments.endpoint.merge({
+                owner: context.issue.owner,
+                repo: context.issue.repo,
+                issue_number: context.issue.number
+            }))
+            comments.push(...issueComments.map(comment => comment.body))
+        
+            const prComments = await github.paginate(github.rest.pulls.listReviewComments.endpoint.merge({
+                owner: context.issue.owner,
+                repo: context.issue.repo,
+                pull_number: context.issue.number
+            }))
+            comments.push(...prComments.map(comment => comment.body))
+        
+            const prReviews = await github.paginate(github.rest.pulls.listReviews.endpoint.merge({
+                owner: context.issue.owner,
+                repo: context.issue.repo,
+                pull_number: context.issue.number
+            }))
+            comments.push(...prReviews.map(comment => comment.body))
+            var openTasks = []
+            var closedTasks = []
+            comments.flatMap(comment => comment.split("\n"))
+                .map(line => line.trim())
+                .filter(line => line.length > 0)
+                .forEach(line => {
+                    if (line.startsWith("- [ ]")) {
+                        openTasks.push(line.substring(5).trim())
+                    } else if (line.startsWith("- [x]")) {
+                        closedTasks.push(line.substring(5).trim())
+                    }
+                })
+            var state = {
+                state: "success",
+                description: "No tasks in this PR"
+            }
+            if (openTasks.length === 1) {
+                state.state = "failure"
+                state.description = "Task is not completed: '" + openTasks[0] + "'"
+            } else if (openTasks.length > 1) {
+                state.state = "failure"
+                state.description = openTasks.length + " open task(s)"
+            } else if (openTasks.length === 0) {
+                if (closedTasks.length > 0) {
+                    state.description = closedTasks.length + " tasks closed"
+                }
+            }
+            await github.rest.repos.createCommitStatus({
+                ...state,
+                owner: context.issue.owner,
+                repo: context.issue.repo,
+                sha: pr.data.head.sha,
+                context: "pr-tasks-workflow"
+            })
