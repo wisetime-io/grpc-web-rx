@@ -1,7 +1,7 @@
 // Copyright (c) 2020 WiseTime. All rights reserved.
 
 import { IRetryScenariosServer } from "../../../generated/server/test_scenarios_grpc_pb"
-import { sendUnaryData, ServerUnaryCall, ServerWritableStream } from "@grpc/grpc-js"
+import { sendUnaryData, ServerUnaryCall, ServerWritableStream, UntypedHandleCall } from "@grpc/grpc-js"
 import {
   EchoRequest,
   EchoResponse,
@@ -11,7 +11,12 @@ import {
 import { Status } from "@grpc/grpc-js/build/src/constants"
 
 export class RetryScenarios implements IRetryScenariosServer {
+  // https://github.com/agreatfool/grpc_tools_node_protoc_ts/blob/v5.1.1/doc/server_impl_signature.md#fixing
+  [name: string]: UntypedHandleCall
 
+  // https://github.com/agreatfool/grpc_tools_node_protoc_ts/blob/v5.1.1/doc/server_impl_signature.md#fixing
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   failuresMap: Map<string, number> = new Map<string, number>()
 
   getNumFailuresAndCurrent = (call: ServerUnaryCall<FailThenSucceedRequest, FailThenSucceedResponse>): { numFailures: number, current: number } => {
