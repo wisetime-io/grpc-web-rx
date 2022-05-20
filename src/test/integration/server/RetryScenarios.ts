@@ -1,7 +1,7 @@
 // Copyright (c) 2020 WiseTime. All rights reserved.
 
 import { IRetryScenariosServer } from "../../../generated/server/test_scenarios_grpc_pb"
-import { sendUnaryData, ServerUnaryCall, ServerWritableStream, UntypedHandleCall } from "@grpc/grpc-js"
+import { sendUnaryData, ServerUnaryCall, ServerWritableStream } from "@grpc/grpc-js"
 import {
   EchoRequest,
   EchoResponse,
