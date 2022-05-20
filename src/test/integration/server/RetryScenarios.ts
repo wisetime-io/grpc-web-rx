@@ -17,7 +17,7 @@ type KnownKeys<T> = {
 type KnownOnly<T extends Record<any,any>> = Pick<T, KnownKeys<T>>
 
 // Partial implementation from
-// https://github.com/agreatfool/grpc_tools_node_protoc_ts/blob/master/doc/server_impl_signature.md#implementation
+// https://github.com/agreatfool/grpc_tools_node_protoc_ts/blob/master/doc/server_impl_signature.md#class-style
 // tests are failing with TypedServerOverride
 export type ITypedRetryScenariosServer = KnownOnly<IRetryScenariosServer>
 
