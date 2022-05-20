@@ -9,12 +9,8 @@ import { UnaryScenariosService, ServerStreamingScenariosService, RetryScenariosS
 const startServer = (): void => {
   const server = new grpc.Server()
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  server.addService(UnaryScenariosService, new UnaryScenarios())
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  server.addService(ServerStreamingScenariosService, new ServerStreamingScenarios())
+  server.addService(UnaryScenariosService, UnaryScenarios)
+  server.addService(ServerStreamingScenariosService, ServerStreamingScenarios)
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   server.addService(RetryScenariosService, new RetryScenarios())
