@@ -1,6 +1,6 @@
 {
   "name": "grpc-web-rx",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "homepage": "https://wisetime.com",
   "main": "dist/index.js",
   "license": "Apache-2.0",
@@ -22,11 +22,11 @@
     "eslint": "^7.32.0",
     "factory.ts": "^0.5.2",
     "faker": "^5.5.3",
-    "forever": "^3.0.4",
-    "grpc_tools_node_protoc_ts": "^4.1.5",
+    "grpc_tools_node_protoc_ts": "^5.3.2",
     "grpc-tools": "^1.11.2",
     "jest": "26.4.0",
     "jsdom": "^16.7.0",
+    "pm2": "^5.2.0",
     "rxjs-marbles": "^7.0.1",
     "ts-jest": "^26.5.6",
     "ts-node": "^9.1.1",
@@ -44,8 +44,8 @@
     "build": "make test-generate-proto && tsc",
     "publish:lib": "make clean init && npm run build && npm publish",
     "eslint": "eslint --quiet src",
-    "start-local-server": "forever start -v -c ts-node src/test/integration/server/server.ts",
-    "stop-local-server": "forever stopall"
+    "start-local-server": "pm2 start ts-node -- src/test/integration/server/server.ts",
+    "stop-local-server": "pm2 stop ts-node && pm2 delete ts-node"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",

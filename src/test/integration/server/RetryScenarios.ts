@@ -10,8 +10,18 @@ import {
 } from "../../../generated/server/test_scenarios_pb"
 import { Status } from "@grpc/grpc-js/build/src/constants"
 
-export class RetryScenarios implements IRetryScenariosServer {
+type KnownKeys<T> = {
+  [K in keyof T]: string extends K ? never : number extends K ? never : K
+} extends { [_ in keyof T]: infer U } ? U : never;
 
+type KnownOnly<T extends Record<any,any>> = Pick<T, KnownKeys<T>>
+
+// Partial implementation from
+// https://github.com/agreatfool/grpc_tools_node_protoc_ts/blob/master/doc/server_impl_signature.md#class-style
+// tests are failing with TypedServerOverride
+export type ITypedRetryScenariosServer = KnownOnly<IRetryScenariosServer>
+
+export class RetryScenarios implements ITypedRetryScenariosServer {
   failuresMap: Map<string, number> = new Map<string, number>()
 
   getNumFailuresAndCurrent = (call: ServerUnaryCall<FailThenSucceedRequest, FailThenSucceedResponse>): { numFailures: number, current: number } => {
