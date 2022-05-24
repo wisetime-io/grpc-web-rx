@@ -47,3 +47,62 @@ plan-permissions:
     permissions:
       - view
 ...
+---
+version: 2
+deployment:
+  name: grpc-web-rx
+  source-plan: WT-GRPCWEB
+release-naming:
+  next-version-name: 3.0.56-1652
+  applies-to-branches: false
+  auto-increment: true
+  auto-increment-variables: []
+environments:
+  - prod
+prod:
+  triggers: []
+  tasks:
+    - clean
+    - artifact-download:
+        artifacts:
+          - { }
+    - script:
+        interpreter: SHELL
+        scripts:
+          - |-
+            #!/bin/bash
+            echo "//registry.npmjs.org/:_authToken=\${bamboo_SECRET_NPM_TOKEN}" > .npmrc
+            npm publish grpc-web-rx-*.tgz
+  variables:
+    SECRET_NPM_TOKEN: BAMSCRT@0@0@tm6a4CR4DfgDWQxKHb+Kv3jvxOCb+NdYoGLjuyH5wIo1Xm+ft/a1vb7ndRvwtRqc
+  requirements: []
+  notifications: []
+---
+version: 2
+deployment:
+  name: grpc-web-rx
+deployment-permissions:
+  - groups:
+      - bamboo-admin
+    permissions:
+      - view
+      - edit
+  - roles:
+      - logged-in
+    permissions:
+      - view
+
+environment-permissions:
+  - prod:
+      - groups:
+          - bamboo-deploy-team-prod
+        permissions:
+          - view
+          - deploy
+      - groups:
+          - bamboo-admin
+        permissions:
+          - view
+          - edit
+          - deploy
+...
