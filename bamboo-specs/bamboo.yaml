@@ -25,7 +25,7 @@ Default Job:
             [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
             [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
             make clean init
-            tsc
+            ./node_modules/.bin/tsc
             npm pack
   artifacts:
     - name: grpc-web-rx.tgz
