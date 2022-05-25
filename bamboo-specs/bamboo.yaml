@@ -24,7 +24,8 @@ Default Job:
             export NVM_DIR="$HOME/.nvm"
             [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
             [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
-            make clean init build
+            make clean init
+            tsc
             npm pack
   artifacts:
     - name: grpc-web-rx.tgz
