@@ -42,7 +42,6 @@
     "test": "jest --no-cache",
     "test-local": "make test-generate-proto && npm run start-local-server && sleep 2 && make start-local-proxy && sleep 2 && jest --no-cache && npm run stop-local-server",
     "build": "make test-generate-proto && tsc",
-    "publish:lib": "make clean init && npm run build && npm publish",
     "eslint": "eslint --quiet src",
     "start-local-server": "pm2 start ts-node -- src/test/integration/server/server.ts",
     "stop-local-server": "pm2 stop ts-node && pm2 delete ts-node"
