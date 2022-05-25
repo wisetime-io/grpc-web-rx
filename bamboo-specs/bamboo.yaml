@@ -15,9 +15,6 @@ Default Job:
   tasks:
     - checkout:
         force-clean-build: 'false'
-    - command:
-        executable: make
-        argument: clean
     - script:
         interpreter: SHELL
         scripts:
@@ -27,7 +24,7 @@ Default Job:
             export NVM_DIR="$HOME/.nvm"
             [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
             [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
-            npm ci
+            make clean init build
             npm pack
   artifacts:
     - name: grpc-web-rx.tgz
