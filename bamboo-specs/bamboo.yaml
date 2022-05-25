@@ -70,7 +70,7 @@ plan-permissions:
 ---
 version: 2
 deployment:
-  name: grpc-web-rx
+  name: grpc-web-rx-npm-publish
   source-plan: WT-GRPCWEB
 release-naming:
   next-version-name: 3.0.56-1652
@@ -100,7 +100,7 @@ prod:
 ---
 version: 2
 deployment:
-  name: grpc-web-rx
+  name: grpc-web-rx-npm-publish
 deployment-permissions:
   - groups:
       - bamboo-admin
