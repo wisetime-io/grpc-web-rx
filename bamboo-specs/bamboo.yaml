@@ -13,6 +13,7 @@ stages:
 Default Job:
   key: JOB1
   tasks:
+    - clean
     - checkout:
         force-clean-build: 'false'
     - script:
@@ -89,6 +90,10 @@ prod:
         scripts:
           - |-
             #!/bin/bash
+            set -o errexit ; set -o errtrace ; set -o pipefail
+            export NVM_DIR="$HOME/.nvm"
+            [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
+            [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
             echo "//registry.npmjs.org/:_authToken=\${bamboo_SECRET_NPM_TOKEN}" > .npmrc
             npm publish grpc-web-rx-*.tgz
   variables:
