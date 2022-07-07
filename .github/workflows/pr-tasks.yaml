@@ -78,6 +78,7 @@ jobs:
                       state.description = closedTasks.length + " tasks closed"
                   }
               }
+              state.description = state.description.substring(0, 139)
               await github.rest.repos.createCommitStatus({
                   ...state,
                   owner,
