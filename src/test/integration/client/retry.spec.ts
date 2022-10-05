@@ -5,7 +5,7 @@ import { FailThenSucceedRequest, FailThenSucceedResponse } from "../../../genera
 import { RetryScenariosClient } from "../../../generated/client/Test_scenariosServiceClientPb"
 import { from, RetryPolicy, retry } from "../../../index"
 import * as Grpc from "grpc-web"
-import * as fakerStatic from "faker"
+import * as faker from "faker"
 import { iif, of, from as fromPromise, EMPTY } from "rxjs"
 import { withExponentialDelay } from "../../../retry"
 
@@ -18,7 +18,7 @@ describe("retry scenarios impl", () => {
 
   const generateRetryRequest = (numFailuresUntilSuccess: number) => {
     return new FailThenSucceedRequest()
-      .setKey(fakerStatic.random.uuid())
+      .setKey(faker.datatype.uuid())
       .setNumFailures(numFailuresUntilSuccess)
   }
 
