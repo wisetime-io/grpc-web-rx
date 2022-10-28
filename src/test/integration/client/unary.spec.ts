@@ -31,6 +31,15 @@ describe("unary rpc scenarios", () => {
         })
   })
 
+  it("should receive trailing metadata", (done) => {
+    from(() => unaryScenariosClient.failedPrecondition(request, {}))
+      .subscribe(_next => testNoOp(),
+        error => {
+          expect(error.metadata).toEqual({ key: "value" })
+          done()
+        })
+  })
+
   it("should return 'empty' on unary noResponse()", (done) => {
     from(() => unaryScenariosClient.noResponse(request, {}))
       .subscribe(next => {
