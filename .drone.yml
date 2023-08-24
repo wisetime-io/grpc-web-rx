@@ -4,7 +4,7 @@ name: unit-test
 
 steps:
   - name: build
-    image: gcr.io/wise-pub/wt-node-14@sha256:9dfd14c6f4fcb91aa950cadd0b03e34ca3af8d9df0f2b6c3b643d3d317fdc8d1
+    image: europe-west3-docker.pkg.dev/wise-pub/tools/wt-node-14@sha256:7d07d37bd7e41d6e262e1c11e3b8a449703d1e1d5a5989132216bba50549abd4
     commands:
       - make clean
       - make init
@@ -12,7 +12,7 @@ steps:
       - make build
 
   - name: node-server
-    image: gcr.io/wise-pub/wt-node-14@sha256:9dfd14c6f4fcb91aa950cadd0b03e34ca3af8d9df0f2b6c3b643d3d317fdc8d1
+    image: europe-west3-docker.pkg.dev/wise-pub/tools/wt-node-14@sha256:7d07d37bd7e41d6e262e1c11e3b8a449703d1e1d5a5989132216bba50549abd4
     commands:
       - ./node_modules/.bin/ts-node src/test/integration/server/server.ts &
       - ENVOY_HOST='envoyproxy' make integration-test
