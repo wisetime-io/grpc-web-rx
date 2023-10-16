@@ -4,7 +4,7 @@ This module contains the server implementation, and the local proxy (envoy) conf
 
 To set up your local environment for running end-to-end tests:
 
-1. Start the server with `ts-node src/test/integration/server.ts` in terminal window
+1. Start the server with `ts-node src/test/integration/server/server.ts` in terminal window
 2. Start the local envoy proxy by running `sh scripts/start-envoy-local.sh`
 
 Tests in the `client/` directory can now be executed against said local node server.
