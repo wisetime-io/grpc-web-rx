@@ -10,6 +10,8 @@ import * as Grpc from "grpc-web"
 export const setupIntegrationTests = (): void => {
   if (typeof window === "undefined") {
     console.log("Running from node...")
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     global.XMLHttpRequest = require("xhr2")
   } else {
     console.log("Running from browser...")

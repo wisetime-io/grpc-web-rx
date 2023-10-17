@@ -16,33 +16,37 @@ describe("server streaming rpc scenarios", () => {
 
   it("should append '-streaming' to request message on streaming ok()", (done) => {
     from<EchoResponse>(() => serverStreamingClient.ok(request, {}))
-      .subscribe(
-        resp => {
+      .subscribe({
+        next: (resp: EchoResponse) => {
           expect(resp.getMessage()).toContain(request.getMessage() + "-streaming")
           done()
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        _error => testNoOp())
+        error: _error => testNoOp()
+      })
   })
 
   it("should return grpc error on streaming failedPrecondition()", (done) => {
     from(() => serverStreamingClient.failedPrecondition(request, {}))
-      .subscribe(
+      .subscribe({
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        _resp => testNoOp(),
-        error => {
+        next: _resp => testNoOp(),
+        error: error => {
           expect(error.code).toEqual(StatusCode.FAILED_PRECONDITION)
           done()
-        })
+        }
+      })
   })
 
   it("should return Empty on request to streaming noResponse()", (done) => {
     from(() => serverStreamingClient.noResponse(request, {}))
-      .subscribe(resp => {
-        expect(resp).toEqual(new Empty())
-        done()
-      },
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      _error => testNoOp())
+      .subscribe({
+        next: resp => {
+          expect(resp).toEqual(new Empty())
+          done()
+        },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        error: _error => testNoOp()
+      })
   })
 })

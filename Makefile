@@ -5,7 +5,10 @@ integration-test:
 
 test-local:
 	@echo "- Run tests against local node server"
-	npm run test-local
+	$(MAKE) test-generate-proto
+	# stop and remove local envoy proxy container (ignore error if container isn't found)
+	docker stop envoy-local && docker rm -f envoy-local || true
+	npm run start-local-server && sleep 2 && $(MAKE) start-local-proxy && sleep 2 && npm test && npm run stop-local-server
 
 test-generate-proto:
 	@echo "- Clean proto-generated code"
