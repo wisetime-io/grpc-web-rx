@@ -15,37 +15,48 @@ describe("unary rpc scenarios", () => {
 
   it("should append '-server' to request message on unary ok()", (done) => {
     from(() => unaryScenariosClient.ok(request, {}))
-      .subscribe(resp => {
-        expect(resp.getMessage()).toBe(request.getMessage() + "-server")
-        done()
-      },
-      _error => testNoOp())
+      .subscribe({
+        next: resp => {
+          expect(resp.getMessage()).toBe(request.getMessage() + "-server")
+          done()
+        },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        error: _ => testNoOp()
+      })
   })
 
   it("should return grpc error on unary failedPrecondition()", (done) => {
     from(() => unaryScenariosClient.failedPrecondition(request, {}))
-      .subscribe(_next => testNoOp(),
-        error => {
-          expect(error.code).toEqual(StatusCode.FAILED_PRECONDITION)
+      .subscribe({
+        next: _ => testNoOp(),
+        error: err => {
+          expect(err.code).toEqual(StatusCode.FAILED_PRECONDITION)
           done()
-        })
+        }
+      })
   })
 
   it("should receive trailing metadata", (done) => {
     from(() => unaryScenariosClient.failedPrecondition(request, {}))
-      .subscribe(_next => testNoOp(),
-        error => {
-          expect(error.metadata).toEqual({ key: "value" })
+      .subscribe({
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        next: _ => testNoOp(),
+        error: err => {
+          expect(err.metadata?.key).toEqual("value")
           done()
-        })
+        }
+      })
   })
 
   it("should return 'empty' on unary noResponse()", (done) => {
     from(() => unaryScenariosClient.noResponse(request, {}))
-      .subscribe(next => {
-        expect(next).toEqual(new Empty())
-        done()
-      },
-      _error => testNoOp())
+      .subscribe({
+        next: resp => {
+          expect(resp).toEqual(new Empty())
+          done()
+        },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        error: _ => testNoOp()
+      })
   })
 })
