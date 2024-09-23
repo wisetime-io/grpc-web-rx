@@ -19,10 +19,10 @@ describe("server streaming rpc scenarios", () => {
       .subscribe({
         next: (resp: EchoResponse) => {
           expect(resp.getMessage()).toContain(request.getMessage() + "-streaming")
-          done()
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        error: _error => testNoOp()
+        error: _error => testNoOp(),
+        complete: () => done(),
       })
   })
 
@@ -34,7 +34,7 @@ describe("server streaming rpc scenarios", () => {
         error: error => {
           expect(error.code).toEqual(StatusCode.FAILED_PRECONDITION)
           done()
-        }
+        },
       })
   })
 
@@ -43,10 +43,10 @@ describe("server streaming rpc scenarios", () => {
       .subscribe({
         next: resp => {
           expect(resp).toEqual(new Empty())
-          done()
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        error: _error => testNoOp()
+        error: _error => testNoOp(),
+        complete: () => done(),
       })
   })
 })
