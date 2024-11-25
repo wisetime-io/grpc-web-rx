@@ -4,8 +4,8 @@ on:
   pull_request_review:
   pull_request:
     types:
-    - opened
-    - edited
+      - opened
+      - edited
   push:
 
 jobs:
@@ -13,7 +13,10 @@ jobs:
     name: PR comment
     runs-on: self-hosted
     steps:
-      - uses: actions/github-script@v6
+      - name: Get branch name (PR)
+        shell: bash
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF_NAME} | tr / -)" >> $GITHUB_ENV
+      - uses: actions/github-script@v7
         with:
           script: |
             async function processPullRequest(github, owner, repo, pull_number) {
@@ -26,7 +29,7 @@ jobs:
                   throw "Failed to load pr: " + pr
               }
               var comments = []
-          
+            
               comments.push(pr.data.body)
               const issueComments = await github.paginate(github.rest.issues.listComments.endpoint.merge({
                   owner,
@@ -34,14 +37,14 @@ jobs:
                   issue_number: pull_number
               }))
               comments.push(...issueComments.map(comment => comment.body))
-          
+            
               const prComments = await github.paginate(github.rest.pulls.listReviewComments.endpoint.merge({
                   owner,
                   repo,
                   pull_number
               }))
               comments.push(...prComments.map(comment => comment.body))
-          
+            
               const prReviews = await github.paginate(github.rest.pulls.listReviews.endpoint.merge({
                   owner,
                   repo,
@@ -56,6 +59,7 @@ jobs:
                   .flatMap(comment => comment.split("\n"))
                   .map(line => line.trim())
                   .filter(line => line.length > 0)
+                  .filter(line => !line.includes("rebase/retry this PR"))
                   .forEach(line => {
                       if (line.startsWith("- [ ]")) {
                           openTasks.push(line.substring(5).trim())
@@ -67,16 +71,24 @@ jobs:
                   state: "success",
                   description: "No tasks in this PR"
               }
-              if (openTasks.length === 1) {
-                  state.state = "failure"
-                  state.description = "Task is not completed: '" + openTasks[0] + "'"
-              } else if (openTasks.length > 1) {
-                  state.state = "failure"
-                  state.description = openTasks.length + " open task(s)"
-              } else if (openTasks.length === 0) {
-                  if (closedTasks.length > 0) {
-                      state.description = closedTasks.length + " tasks closed"
+
+              const branchName = process.env.BRANCH_NAME;
+              var skipCommentCheck = branchName && branchName.startsWith('renovate');
+            
+              if (!skipCommentCheck) {
+                  if (openTasks.length === 1) {
+                      state.state = "failure"
+                      state.description = "Task is not completed: '" + openTasks[0] + "'"
+                  } else if (openTasks.length > 1) {
+                      state.state = "failure"
+                      state.description = openTasks.length + " open task(s)"
+                  } else if (openTasks.length === 0) {
+                      if (closedTasks.length > 0) {
+                          state.description = closedTasks.length + " tasks closed"
+                      }
                   }
+              } else {
+                  state.description = "Skipped task check for branch name " + branchName
               }
               state.description = state.description.substring(0, 139)
               await github.rest.repos.createCommitStatus({
