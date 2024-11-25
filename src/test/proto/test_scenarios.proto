@@ -1,0 +1,48 @@
+// Scenarios for end to end tests.
+//
+// Client streaming and bidirectional streaming scenarios are missing because
+// gRPC Web does not currently support these RPC types.
+
+syntax = "proto3";
+
+package grpcwebrx.testing;
+
+service UnaryScenarios {
+  rpc Ok (EchoRequest) returns (EchoResponse);
+  rpc FailedPrecondition (EchoRequest) returns (Empty);
+  rpc NoResponse (EchoRequest) returns (Empty);
+}
+
+service ServerStreamingScenarios {
+  rpc Ok (EchoRequest) returns (stream EchoResponse);
+  rpc FailedPrecondition (EchoRequest) returns (stream Empty);
+  rpc NoResponse (EchoRequest) returns (stream Empty);
+}
+
+service RetryScenarios {
+  rpc FailThenSucceed (FailThenSucceedRequest) returns (FailThenSucceedResponse);
+  rpc FailThenSucceedStream (FailThenSucceedRequest) returns (stream FailThenSucceedResponse);
+  rpc AuthenticatedRpc (EchoRequest) returns (EchoResponse);
+}
+
+message EchoRequest {
+  string message = 1;
+}
+
+message EchoResponse {
+  string message = 1;
+}
+
+message Empty {}
+
+message FailThenSucceedRequest {
+  // Key used to partition failure counts
+  string key = 1;
+  // Number of failures that the service should respond with before succeeding
+  uint32 num_failures = 2;
+}
+
+message FailThenSucceedResponse {
+  // Number of failures recorded before succeeding
+  uint32 num_failures = 1;
+}
