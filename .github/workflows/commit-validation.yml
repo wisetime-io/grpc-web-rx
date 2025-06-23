@@ -64,7 +64,7 @@ jobs:
             fi
             
             # Check if this is a merge commit that should be ignored
-            if [[ "$COMMIT_MSG" =~ ^Merge\ branch\ .*\ into\ .* ]]; then
+            if [[ "$COMMIT_MSG" =~ ^Merge(\ remote-tracking)?\ branch\ .*\ into\ .* ]]; then
               echo "⏭️  Skipping merge commit $COMMIT_SHORT"
               continue
             fi
