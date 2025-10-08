@@ -1,0 +1,14 @@
+name: Close inactive issues
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 1 * * *"
+
+jobs:
+  close-issues:
+    runs-on: self-hosted
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: wisetime-io/github-actions/actions/stale-pr@master
