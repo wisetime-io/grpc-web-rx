@@ -79,7 +79,7 @@ const isGrpcError = (
     return false
   }
   const grpcError = error as Grpc.RpcError
-  return "code" in grpcError && "message" in grpcError && "metadata" in grpcError
+  return "code" in grpcError && "message" in grpcError
 }
 
 /**
