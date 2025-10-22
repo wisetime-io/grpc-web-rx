@@ -18,9 +18,7 @@ jobs:
           node-version-file: '.nvmrc'
           registry-url: 'https://registry.npmjs.org'
 
-      # Ensure npm 11.5.1 or later is installed
-      - name: Update npm
-        run: npm install -g npm@latest
+      # Trusted Publishing requires npm 11.5.1 or later is installed
       - run: npm ci
       - run: npm run build --if-present
       - run: npm publish

@@ -2,12 +2,12 @@
 
 gRPC-Web-Rx is a TypeScript library that integrates [gRPC-Web](https://github.com/grpc/grpc-web) with [RxJS](https://github.com/ReactiveX/rxjs). gRPC-Web-Rx provides a convenience `from` operator that you can use to wrap your gRPC call to obtain an `Observable` of the response. Currently unary and server streaming RPCs are supported.
 
-gRPC Call Type | Input and Output Types
---- | ---
-Unary | `Request => Observable<Response>`
-Server streaming | `Request => Observable<Response>`
-Client streaming | Not yet supported by gRPC-Web
-Bidirectional streaming | Not yet supported by gRPC-Web
+| gRPC Call Type          | Input and Output Types            |
+|-------------------------|-----------------------------------|
+| Unary                   | `Request => Observable<Response>` |
+| Server streaming        | `Request => Observable<Response>` |
+| Client streaming        | Not yet supported by gRPC-Web     |
+| Bidirectional streaming | Not yet supported by gRPC-Web     |
 
 ## Usage
 
