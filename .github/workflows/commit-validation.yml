@@ -1,0 +1,11 @@
+name: Commit Message and Email Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate-commits:
+    runs-on: self-hosted
+    steps:
+      - uses: wisetime-io/github-actions/actions/commit-validation@master

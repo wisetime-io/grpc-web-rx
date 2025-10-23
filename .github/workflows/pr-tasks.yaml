@@ -1,0 +1,15 @@
+on:
+  issue_comment:
+  pull_request_review_comment:
+  pull_request_review:
+  pull_request:
+    types:
+      - opened
+      - edited
+  push:
+
+jobs:
+  pr_commented:
+    runs-on: self-hosted
+    steps:
+      - uses: wisetime-io/github-actions/actions/pr-task@master
